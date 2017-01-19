@@ -9,6 +9,7 @@ versions_file=$3
 echo "clone-repos.sh will clone all repos specified in ${repos_dir} into subdirectories of ${clone_dir}"
 
 mkdir -p "${clone_dir}"
+touch "${versions_file}"
 for repo_file in $(find "${repos_dir}" -maxdepth 1 -name \*.giturl); do
     (
         repo_name="$(basename ${repo_file} .giturl)"
