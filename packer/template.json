@@ -25,10 +25,6 @@
     ],
     "provisioners": [
         {
-            "type": "shell-local",
-            "command": "(cd cloned-repos; for repo in *.url; do git clone ${repo} $(basename ${repo} .url); done)"
-        },
-        {
             "type": "shell",
             "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
