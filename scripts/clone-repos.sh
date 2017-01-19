@@ -4,6 +4,7 @@ set -euf -o pipefail
 
 repos_dir=$1
 clone_dir=$2
+versions_file=$3
 
 echo "clone-repos.sh will clone all repos specified in ${repos_dir} into subdirectories of ${clone_dir}"
 
@@ -16,7 +17,8 @@ for repo_file in $(find "${repos_dir}" -maxdepth 1 -name \*.giturl); do
         echo "cloning from URL: ${repo_url}"
         git clone "${repo_url}" "${repo_name}"
         cd "${repo_name}"
-        echo -n "cloned ${repo_name}: "
-        git describe --tags --dirty --always
+        version=$(git describe --tags --dirty --always)
+        echo -n "-${repo_name}-${version}" >> "${versions_file}"
+        echo "cloned ${repo_name}: ${version}"
     )
 done
