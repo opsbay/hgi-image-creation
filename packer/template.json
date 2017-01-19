@@ -7,6 +7,7 @@
         "os_security_groups": "{{ env `PACKER_OS_SECURITY_GROUPS` }}",
         "os_flavor": "{{ env `PACKER_OS_FLAVOR` }}",
         "os_floating_ip_pool": "{{ env `PACKER_OS_FLOATING_IP_POOL` }}",
+        "ansible_dir": "{{ env `PACKER_ANSIBLE_DIR` }}",
         "ansible_inventory_groups": "{{ env `PACKER_ANSIBLE_INVENTORY_GROUPS` }}",
         "ansible_config_file": "ansible-minimal.cfg"
     },
@@ -31,7 +32,7 @@
         },
         {
             "type": "ansible",
-            "playbook_file": "{{ template_dir }}/../cloned-repos/hgi-systems/ansible/site.yml",
+            "playbook_file": "{{ user `ansible_dir` }}/site.yml",
             "groups": "image-building,{{ user `ansible_inventory_groups` }}",
             "use_sftp": true,
             "user": "ubuntu"
