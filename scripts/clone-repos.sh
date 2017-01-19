@@ -17,8 +17,8 @@ for repo_file in $(find "${repos_dir}" -maxdepth 1 -name \*.giturl); do
         echo "cloning from URL: ${repo_url}"
         git clone "${repo_url}" "${repo_name}"
         cd "${repo_name}"
-        version=$(git describe --tags --dirty --always)
-        echo -n "-${repo_name}-${version}" >> "${versions_file}"
-        echo "cloned ${repo_name}: ${version}"
+        repo_version="${repo_name}-$(git describe --tags --dirty --always)"
+        echo -n "-${repo_version}" >> "${versions_file}"
+        echo "cloned ${repo_version}"
     )
 done
