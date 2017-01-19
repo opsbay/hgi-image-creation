@@ -25,13 +25,17 @@
     ],
     "provisioners": [
         {
+            "type": "shell-local",
+            "command": "(cd cloned-repos; for repo in *.url; do git clone ${repo} $(basename ${repo} .url); done)"
+        },
+        {
             "type": "shell",
             "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
         },
         {
             "type": "ansible",
-            "playbook_file": "{{ template_dir }}/ansible/site.yml",
+            "playbook_file": "{{ template_dir }}/../cloned-repos/hgi-systems/ansible/site.yml",
             "groups": "image-building,{{ user `ansible_inventory_groups` }}",
             "use_sftp": true,
             "user": "ubuntu"
