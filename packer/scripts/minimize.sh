@@ -1,0 +1,1 @@
+../../subrepos/image-creation/packer/scripts/minimize.sh
