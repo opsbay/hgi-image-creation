@@ -191,11 +191,11 @@ cleanup_openstack_build:
   script:
    - cd packer
    - export IMAGE_NAME="$IMAGE_NAME_CENTOS7"
-   - ./remove_failed_builds.py
+   - ./remove_failed_builds.py --image_name="${IMAGE_NAME}"
    - export IMAGE_NAME="$IMAGE_NAME_TRUSTY"
-   - ./remove_failed_builds.py
+   - ./remove_failed_builds.py --image_name="${IMAGE_NAME}"
    - export IMAGE_NAME="$IMAGE_NAME_XENIAL"
-   - ./remove_failed_builds.py
+   - ./remove_failed_builds.py --image_name="${IMAGE_NAME}"
   when: on_failure
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import argparse
 import sys
 import subprocess
 from os import environ
@@ -34,18 +35,28 @@ def authenticate():
     return nova, glance
 
 
-def remove():
+def remove(image_names):
     nova, glance = authenticate()
 
-    image_name = environ.get('IMAGE_NAME')
+    removed = 0
     for image in glance.images.list():
-        if 'private' not in image['visibility']:
+        if 'private' not in image.visibility:
             continue
 
-        if image['name'] == image_name:
-            subprocess.check_call(['openstack', 'image', 'delete', image['id']])
+        if image.name in image_names:
+            print("removing image %s (%s)" % (image.id, image.name))
+            try:
+                glance.images.delete(image.id)
+                removed+=1
+            except glexc.HTTPException as e:
+                print("could not delete image %s: %s" % (image.id, e))
+    print("deleted %d images" %(removed))
 
 def main():
-    remove()
+    parser = argparse.ArgumentParser(description="Removes the specified images from OpenStack after a failed build")
+    parser.add_argument('--image_name','-i', action='append', dest='image_names', help='The image(s) to remove (may be repeated)')
+    args = parser.parse_args()
+    remove(args.image_names)
 
-main()
+if __name__ == "__main__":
+    main()
