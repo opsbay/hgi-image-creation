@@ -28,10 +28,8 @@
     "provisioners": [
         {
             "type": "shell",
-            "inline": [
-                "find {{ template_dir }}",
-                "{{ template_dir }}/scripts/cloud-init-wait.sh"
-            ]
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} {{ .Path }} {{ user `cloud_init_wait_timeout_s` }}",
+            "script": "{{ template_dir }}/scripts/cloud-init-wait.sh"
         },
         {
             "type": "shell",
