@@ -29,7 +29,7 @@
         {
             "type": "shell",
             "scripts": [
-                "{{ template_dir }}/scripts/cloud-init-wait.sh {{ env `cloud_init_wait_timeout_s` }}"
+                "{{ template_dir }}/scripts/cloud-init-wait.sh {{ user `cloud_init_wait_timeout_s` }}"
             ]
         },
         {
