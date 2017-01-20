@@ -28,7 +28,7 @@
     "provisioners": [
         {
             "type": "shell",
-            "scripts": [
+            "inline": [
                 "{{ template_dir }}/scripts/cloud-init-wait.sh {{ user `cloud_init_wait_timeout_s` }}"
             ]
         },
