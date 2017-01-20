@@ -19,7 +19,7 @@ for repo_file in $(find "${repos_dir}" -maxdepth 1 -name \*.giturl); do
         cd "${repo_name}"
         repo_version="${repo_name}-$(git describe --tags --dirty --always)"
         echo "Adding ${repo_version} to ${versions_file}"
-        echo -n "-${repo_version}" >> "${versions_file}"
+        echo -n "-${repo_version}" >> "../../${versions_file}"
         echo "cloned ${repo_version}"
     )
 done
