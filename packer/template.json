@@ -28,9 +28,8 @@
     "provisioners": [
         {
             "type": "shell",
-            "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "inline": [
-                "{{ template_dir }}/scripts/cloud-init-wait.sh {{ user `cloud_init_wait_timeout_s` }}"
+                "{{ template_dir }}/scripts/cloud-init-wait.sh"
             ]
         },
         {
