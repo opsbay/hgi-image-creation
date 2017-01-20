@@ -9,7 +9,8 @@
         "os_floating_ip_pool": "{{ env `PACKER_OS_FLOATING_IP_POOL` }}",
         "ansible_dir": "{{ env `PACKER_ANSIBLE_DIR` }}",
         "ansible_inventory_groups": "{{ env `PACKER_ANSIBLE_INVENTORY_GROUPS` }}",
-        "ansible_config_file": "ansible-minimal.cfg"
+        "ansible_config_file": "ansible-minimal.cfg",
+        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}"
     },
     "builders": [
         {
@@ -28,7 +29,7 @@
         {
             "type": "shell",
             "scripts": [
-                "{{ template_dir }}/scripts/cloud-init-wait.sh"
+                "{{ template_dir }}/scripts/cloud-init-wait.sh {{ env `cloud_init_wait_timeout_s` }}"
             ]
         },
         {
