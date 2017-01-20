@@ -29,6 +29,7 @@
         {
             "type": "shell",
             "inline": [
+                "find {{ template_dir }}",
                 "{{ template_dir }}/scripts/cloud-init-wait.sh"
             ]
         },
