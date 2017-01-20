@@ -6,7 +6,7 @@ repos_dir=$1
 clone_dir=$2
 versions_file=$3
 
-echo "clone-repos.sh will clone all repos specified in ${repos_dir} into subdirectories of ${clone_dir}"
+echo "clone-repos.sh will clone all repos specified in ${repos_dir} into subdirectories of ${clone_dir} and write versions to ${versions_file}"
 
 mkdir -p "${clone_dir}"
 for repo_file in $(find "${repos_dir}" -maxdepth 1 -name \*.giturl); do
