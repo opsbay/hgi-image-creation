@@ -27,6 +27,12 @@
     "provisioners": [
         {
             "type": "shell",
+            "scripts": [
+                "{{ template_dir }}/scripts/cloud-init-wait.sh"
+            ]
+        },
+        {
+            "type": "shell",
             "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
         },
