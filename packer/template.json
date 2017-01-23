@@ -47,7 +47,8 @@
             "type": "shell",
             "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "scripts": [
-                "{{ template_dir }}/scripts/minimize.sh"
+                "{{ template_dir }}/scripts/minimize.sh",
+                "{{ template_dir }}/scripts/ansible_cleanup.sh"
             ]
         }
     ]
