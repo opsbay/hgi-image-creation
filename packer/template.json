@@ -2,7 +2,7 @@
     "min_packer_version": "0.9.0",
     "variables": {
         "image_name": null,
-        "source_image": "{{ env `PACKER_SOURCE_IMAGE` }}",
+        "source_image_name": "{{ env `PACKER_SOURCE_IMAGE_NAME` }}",
         "source_image_username": "{{ env `PACKER_SOURCE_IMAGE_USERNAME` }}",
         "os_security_groups": "{{ env `PACKER_OS_SECURITY_GROUPS` }}",
         "os_flavor": "{{ env `PACKER_OS_FLAVOR` }}",
@@ -18,7 +18,7 @@
             "flavor": "{{ user `os_flavor` }}",
             "floating_ip_pool": "{{ user `os_floating_ip_pool` }}",
             "security_groups": "{{ user `os_security_groups` }}",
-            "source_image": "{{ user `source_image` }}",
+            "source_image_name": "{{ user `source_image_name` }}",
             "ssh_pty": false,
             "ssh_username": "{{ user `source_image_username` }}",
             "type": "openstack",
