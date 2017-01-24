@@ -33,6 +33,11 @@
         },
         {
             "type": "shell",
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} {{ .Path }} apt-daily",
+            "script": "{{ template_dir }}/scripts/systemd-disable-service.sh"
+        },
+        {
+            "type": "shell",
             "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
             "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
         },
