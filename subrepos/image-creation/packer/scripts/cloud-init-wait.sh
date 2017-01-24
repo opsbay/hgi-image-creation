@@ -9,7 +9,8 @@ timeout ${timeout_s} /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finis
 echo "done!"
 echo -n "cloud-init finished: "
 cat /var/lib/cloud/instance/boot-finished
-
+echo "Process list:"
+ps auxwww
 echo -n "waiting 2s more for good measure... "
 sleep 2
 echo "done!"
