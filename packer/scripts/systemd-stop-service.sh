@@ -6,16 +6,12 @@ echo -n "stopping ${service}.timer... "
 systemctl stop ${service}.timer
 echo "done!"
 
-echo -n "disabling ${service}.timer... "
-systemctl disable ${service}.timer
-echo "done!"
-
 echo -n "stopping ${service}.service... "
 systemctl stop ${service}.service
 echo "done!"
 
 echo -n "killing ${service}.service... "
-systemctl kill --kill-who=all ${service}.service
+systemctl kill --kill-who=all --job-mode=ignore-requirements ${service}.service
 echo "done!"
 
 # wait until `apt-get updated` has been killed

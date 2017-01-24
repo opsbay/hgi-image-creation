@@ -34,7 +34,7 @@
         {
             "type": "shell",
             "execute_command": "chmod +x {{ .Path }}; sudo -S sh -c '{{ .Vars }} {{ .Path }} apt-daily'",
-            "script": "{{ template_dir }}/scripts/systemd-disable-service.sh"
+            "script": "{{ template_dir }}/scripts/systemd-stop-service.sh"
         },
         {
             "type": "shell",
