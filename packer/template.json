@@ -33,7 +33,7 @@
         },
         {
             "type": "shell",
-            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} {{ .Path }} apt-daily",
+            "execute_command": "chmod +x {{ .Path }}; sudo -S sh -c '{{ .Vars }} {{ .Path }} apt-daily'",
             "script": "{{ template_dir }}/scripts/systemd-disable-service.sh"
         },
         {
