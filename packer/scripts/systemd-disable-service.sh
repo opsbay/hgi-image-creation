@@ -2,6 +2,14 @@
 
 service=$1
 
+echo -n "stopping ${service}.timer... "
+systemctl stop ${service}.timer
+echo "done!"
+
+echo -n "disabling ${service}.timer... "
+systemctl disable ${service}.timer
+echo "done!"
+
 echo -n "stopping ${service}.service... "
 systemctl stop ${service}.service
 echo "done!"
