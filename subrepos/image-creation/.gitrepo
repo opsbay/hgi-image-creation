@@ -6,6 +6,6 @@
 [subrepo]
 	remote = git@gitlab.internal.sanger.ac.uk:hgi/image-creation.git
 	branch = master
-	commit = 864939953abd545a894d1df72ebab61bef5651ef
-	parent = none
+	commit = 466b936311cbcee6ab1f3d1376448e0e8c373835
+	parent = 2f5cb71d0e7de5f9e76289299b3f5d20ef4fce9f
 	cmdver = 0.3.1
