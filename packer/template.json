@@ -20,7 +20,7 @@
             "flavor": "{{ user `os_flavor` }}",
             "floating_ip_pool": "{{ user `os_floating_ip_pool` }}",
             "security_groups": "{{ user `os_security_groups` }}",
-            "source_image_name": "{{ user `source_image_name` }}",
+            "source_image": "{{ user `os_source_image` }}",
             "ssh_pty": false,
             "ssh_username": "{{ user `source_image_username` }}",
             "networks": "{{ user `os_networks` }}",
