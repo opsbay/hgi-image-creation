@@ -2,7 +2,8 @@
     "min_packer_version": "0.9.0",
     "variables": {
         "image_name": null,
-        "source_image_name": "{{ env `PACKER_SOURCE_IMAGE_NAME` }}",
+        "os_source_image": null,
+        "os_networks": null,
         "source_image_username": "{{ env `PACKER_SOURCE_IMAGE_USERNAME` }}",
         "os_security_groups": "{{ env `PACKER_OS_SECURITY_GROUPS` }}",
         "os_flavor": "{{ env `PACKER_OS_FLAVOR` }}",
@@ -10,7 +11,8 @@
         "ansible_dir": "{{ env `PACKER_ANSIBLE_DIR` }}",
         "ansible_inventory_groups": "{{ env `PACKER_ANSIBLE_INVENTORY_GROUPS` }}",
         "ansible_config_file": "ansible-minimal.cfg",
-        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}"
+        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}",
+        "network": "{{ env `PACKER_OS_NETWORK_UUID` }}"
     },
     "builders": [
         {
@@ -18,11 +20,13 @@
             "flavor": "{{ user `os_flavor` }}",
             "floating_ip_pool": "{{ user `os_floating_ip_pool` }}",
             "security_groups": "{{ user `os_security_groups` }}",
-            "source_image_name": "{{ user `source_image_name` }}",
+            "source_image": "{{ user `os_source_image` }}",
             "ssh_pty": false,
             "ssh_username": "{{ user `source_image_username` }}",
+            "networks": "{{ user `os_networks` }}",
             "type": "openstack",
-            "use_floating_ip": "true"
+            "use_floating_ip": "true",
+            "networks": ["{{ user `network` }}"]
         }
     ],
     "provisioners": [
