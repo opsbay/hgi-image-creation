@@ -4,6 +4,7 @@
         "image_name": null,
         "source_image_name": "{{ env `PACKER_SOURCE_IMAGE_NAME` }}",
         "source_image_username": "{{ env `PACKER_SOURCE_IMAGE_USERNAME` }}",
+        "os_networks": "{{ env `PACKER_OS_NETWORKS` }}",
         "os_security_groups": "{{ env `PACKER_OS_SECURITY_GROUPS` }}",
         "os_flavor": "{{ env `PACKER_OS_FLAVOR` }}",
         "os_floating_ip_pool": "{{ env `PACKER_OS_FLOATING_IP_POOL` }}",
@@ -22,6 +23,7 @@
             "source_image_name": "{{ user `source_image_name` }}",
             "ssh_pty": false,
             "ssh_username": "{{ user `source_image_username` }}",
+            "networks": "{{ user `os_networks` }}",
             "type": "openstack",
             "use_floating_ip": "true",
             "networks": ["{{ user `network` }}"]
