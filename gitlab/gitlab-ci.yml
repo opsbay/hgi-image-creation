@@ -1,0 +1,156 @@
+# For Gitlab CI to function, you must set the following Secret Variables in the
+# Gitlab project settings:
+#  OS_AUTH_URL (e.g. "http://openstack-gamma.internal.sanger.ac.uk:5000/v2.0/")
+#  OS_TENANT_NAME (the tenant name to use for CI instances)
+#  OS_USERNAME (OpenStack user with an account at the above auth and access to above tenant)
+#  OS_PASSWORD (password for OpenStack user)
+variables:
+  IMAGE_BASENAME: "hgi-base-ubuntu-xenial"
+  PACKER_ANSIBLE_INVENTORY_GROUPS: "common"
+  PACKER_OS_SOURCE_IMAGE: "Ubuntu Xenial"
+  HGI_IMAGE_CREATION_DIR: "./subrepos/hgi-image-creation"
+  PACKER_DIR: "${HGI_IMAGE_CREATION_DIR}/packer"
+  PACKER_ANSIBLE_DIR: "subrepos/hgi-systems/ansible"
+  PACKER_SOURCE_IMAGE_USERNAME: "ubuntu"
+  PACKER_OS_FLAVOR: "m1.small"
+  PACKER_OS_FLOATING_IP_POOL: "nova"
+  PACKER_OS_NETWORKS: "hgiarvados" # comma-separated
+  PACKER_OS_SECURITY_GROUPS: "ssh_hgiarvados" # comma-separated
+  PACKER_CLOUD_INIT_WAIT_TIMEOUT_S: "180"
+  PACKER_LOG: "1" # "0" for normal logging or "1" for extra logging
+  PACKER_DEBUG: "-debug" # "" for normal, "-debug" for debug
+
+stages:
+  - prepare
+  - validate
+  - build
+  - upload
+  - cleanup
+
+version:
+  stage: prepare
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - git describe --tags --dirty --always --abbrev=8 > version.txt
+  artifacts:
+    paths:
+      - "version.txt"
+
+prepare_os_source_image:
+  stage: prepare
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - (openstack image show -c id -f value "${PACKER_OS_SOURCE_IMAGE}" > os_source_image.txt)
+  artifacts:
+    paths:
+      - "os_source_image.txt"
+
+prepare_os_networks:
+  stage: prepare
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - for network in "$(echo "${PACKER_OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c id -f value "${network}"; done | paste -s -d "," > os_networks.txt
+  artifacts:
+    paths:
+      - "os_networks.txt"
+
+validate_openstack:
+  stage: validate
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show -c id -f value "${secgroup}"; done
+    - openstack flavor show -c id -f value "${PACKER_OS_FLAVOR}"
+    - openstack ip floating pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
+    - image_name="${IMAGE_BASENAME}-$(cat version.txt)" && image_id=$(openstack image show -c id -f value "${image_name}" || true) && test -z "${image_id}" && echo "There is no existing image called '${image_name}' (ok!)" || (echo "An image named '${image_name}' already exists, refusing to continue!" && exit 1)
+  dependencies:
+    - version
+
+validate_packer:
+  stage: validate
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - 'test -d "${PACKER_DIR}" || (echo "Directory ${PACKER_DIR} must exist!"; exit 1)'
+    - 'test -n "${OS_AUTH_URL}" || (echo "OS_AUTH_URL must be set!"; exit 1)'
+    - 'test -n "${OS_TENANT_NAME}" || test -n "${OS_TENANT_ID}" || (echo "OS_TENANT_NAME or OS_TENANT_ID must be set!"; exit 1)'
+    - 'test -n "${OS_USERNAME}" || test -n "${OS_USERID}" || (echo "OS_USERNAME or OS_USERID must be set!"; exit 1)'
+    - 'test -n "${OS_PASSWORD}" || (echo "OS_PASSWORD must be set!"; exit 1)'
+    - '((echo "${OS_AUTH_URL}" | grep -q "v3") && (test -n "${OS_DOMAIN_NAME}" || test -n "${OS_DOMAIN_ID}" || echo "WARNING: OS_DOMAIN_ID or OS_DOMAIN_NAME not set")) || exit 0'
+    - 'packer validate -only=openstack -var "image_name=${IMAGE_BASENAME}-$(cat version.txt)" -var "os_source_image=$(cat os_source_image.txt)" -var "os_networks=$(cat os_networks.txt)" "${PACKER_DIR}/template.json"'
+  dependencies:
+    - version
+    - prepare_os_source_image
+    - prepare_os_networks
+
+validate_ansible:
+  stage: validate
+  tags:
+   - docker
+  image: mercury/pao
+  script:
+   - ansible-playbook --syntax-check "${PACKER_ANSIBLE_DIR}/site.yml"
+
+build_openstack:
+  stage: build
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - packer build ${PACKER_DEBUG} -only=openstack -var "image_name=${IMAGE_BASENAME}-$(cat version.txt)" -var "os_source_image=$(cat os_source_image.txt)" -var "os_networks=$(cat os_networks.txt)" "${PACKER_DIR}/template.json"
+  dependencies:
+    - version
+    - prepare_os_source_image
+    - prepare_os_networks
+
+upload_hgi:
+  stage: upload
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
+  when: on_success
+  dependencies:
+    - version
+
+#upload_hgiarvados:
+#  stage: upload
+#  tags:
+#    - docker
+#  image: mercury/openstack-tools
+#  script:
+#    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgiarvados "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
+#  when: on_success
+#  dependencies:
+#    - version
+
+upload_hgi-dev:
+  stage: upload
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi-dev "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
+  when: on_success
+  dependencies:
+    - version
+
+cleanup_openstack_build:
+  stage: cleanup
+  tags:
+   - docker
+  image: mercury/pao
+  script:
+   - $PACKER_DIR/scripts/remove_failed_builds.py --image_name="${IMAGE_BASENAME}-$(cat version.txt)"
+  when: on_failure
+  dependencies:
+    - version
