@@ -11,7 +11,7 @@
         "ansible_dir": "{{ env `PACKER_ANSIBLE_DIR` }}",
         "ansible_inventory_groups": "{{ env `PACKER_ANSIBLE_INVENTORY_GROUPS` }}",
         "ansible_config_file": "ansible-minimal.cfg",
-        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}",
+        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}"
     },
     "builders": [
         {
@@ -24,7 +24,7 @@
             "ssh_username": "{{ user `source_image_username` }}",
             "networks": "{{ user `os_networks` }}",
             "type": "openstack",
-            "use_floating_ip": "true",
+            "use_floating_ip": "true"
         }
     ],
     "provisioners": [
