@@ -5,49 +5,91 @@
 #  OS_USERNAME (OpenStack user with an account at the above auth and access to above tenant)
 #  OS_PASSWORD (password for OpenStack user)
 variables:
-  IMAGE_BASENAME: "hgi-base-ubuntu-xenial"
-  PACKER_ANSIBLE_INVENTORY_GROUPS: "common"
-  PACKER_OS_SOURCE_IMAGE: "Ubuntu Xenial"
+  PACKER_ANSIBLE_INVENTORY_GROUPS: "" # ansible groups to place the build in for provisioning
+  IMAGE_BASENAME: "${CI_PROJECT_NAME}"
+  OS_SOURCE_IMAGE_xenial: "Ubuntu Xenial" # name or id of openstack xenial image
+  PACKER_SOURCE_IMAGE_USERNAME_xenial: "ubuntu"
+  OS_SOURCE_IMAGE_trusty: "Ubuntu Trusty" # name or id of openstack trusty image
+  PACKER_SOURCE_IMAGE_USERNAME_trusty: "ubuntu"
+  OS_NETWORKS: "hgiarvados" # comma-separated
+  VERSION_ABBREV_LEN: "8"
+  VERSION_COMMAND: "git describe --tags --dirty --always --abbrev=${VERSION_ABBREV_LEN}"
+  LATEST_VERSION_PLACEHOLDER: "latest"
   HGI_IMAGE_CREATION_DIR: "./subrepos/hgi-image-creation"
+  GITLAB_DIR: "${HGI_IMAGE_CREATION_DIR}/gitlab"
   PACKER_DIR: "${HGI_IMAGE_CREATION_DIR}/packer"
-  PACKER_ANSIBLE_DIR: "subrepos/hgi-systems/ansible"
-  PACKER_SOURCE_IMAGE_USERNAME: "ubuntu"
+  PACKER_ANSIBLE_DIR: "./subrepos/hgi-systems/ansible"
+  PACKER_ANSIBLE_CONFIG: "ansible-minimal.cfg"
   PACKER_OS_FLAVOR: "m1.small"
   PACKER_OS_FLOATING_IP_POOL: "nova"
-  PACKER_OS_NETWORKS: "hgiarvados" # comma-separated
   PACKER_OS_SECURITY_GROUPS: "ssh_hgiarvados" # comma-separated
   PACKER_CLOUD_INIT_WAIT_TIMEOUT_S: "180"
-  PACKER_LOG: "1" # "0" for normal logging or "1" for extra logging
-  PACKER_DEBUG: "-debug" # "" for normal, "-debug" for debug
+  PACKER_LOG: "0" # "0" for normal logging or "1" for extra logging
+  PACKER_DEBUG: "" # "" for normal, "-debug" for debug
+  CI_BEFORE_SCRIPT: "ci-before.sh"
+  CI_BRANCH_BEFORE_SCRIPT: "ci-${CI_BUILD_REF_NAME}-branch-before.sh"
+  CI_ENVIRONMENT_BEFORE_SCRIPT: "ci-${CI_ENVIRONMENT_NAME}-environment-before.sh"
+  CI_STAGE_BEFORE_SCRIPT: "ci-${CI_BUILD_STAGE}-stage-before.sh"
+  CI_BRANCH_STAGE_BEFORE_SCRIPT: "ci-${CI_BUILD_REF_NAME}-branch-${CI_BUILD_STAGE}-stage-before.sh"
+  GITLAB_CI_BEFORE_SCRIPT: "${GITLAB_DIR}/${CI_BEFORE_SCRIPT}"
+  GITLAB_CI_BRANCH_BEFORE_SCRIPT: "${GITLAB_DIR}/${CI_BRANCH_BEFORE_SCRIPT}"
+  GITLAB_CI_ENVIRONMENT_BEFORE_SCRIPT: "${GITLAB_DIR}/${CI_ENVIRONMENT_BEFORE_SCRIPT}"
+  GITLAB_CI_STAGE_BEFORE_SCRIPT: "${GITLAB_DIR}/${CI_STAGE_BEFORE_SCRIPT}"
+  GITLAB_CI_BRANCH_STAGE_BEFORE_SCRIPT: "${GITLAB_DIR}/${CI_BRANCH_STAGE_BEFORE_SCRIPT}"
+  OS_SOURCE_IMAGE_ARTIFACT: "artifacts/os_source_image.txt"
+  OS_NETWORKS_ARTIFACT: "artifacts/os_networks.txt"
+
+before_script:
+  - 'test -r "${GITLAB_CI_BEFORE_SCRIPT}" && echo "Including ${GITLAB_CI_BEFORE_SCRIPT}" && source "${GITLAB_CI_BEFORE_SCRIPT}"'
+  - 'test -r "${GITLAB_CI_BRANCH_BEFORE_SCRIPT}" && echo "Including ${GITLAB_CI_BRANCH_BEFORE_SCRIPT}" && source "${GITLAB_CI_BRANCH_BEFORE_SCRIPT}"'
+  - 'test -r "${GITLAB_CI_ENVIRONMENT_BEFORE_SCRIPT}" && echo "Including ${GITLAB_CI_ENVIRONMENT_BEFORE_SCRIPT}" && source "${GITLAB_CI_ENVIRONMENT_BEFORE_SCRIPT}"'
+  - 'test -r "${GITLAB_CI_STAGE_BEFORE_SCRIPT}" && echo "Including ${GITLAB_CI_STAGE_BEFORE_SCRIPT}" && source "${GITLAB_CI_STAGE_BEFORE_SCRIPT}"'
+  - 'test -r "${GITLAB_CI_BRANCH_STAGE_BEFORE_SCRIPT}" && echo "Including ${GITLAB_CI_BRANCH_STAGE_BEFORE_SCRIPT}" && echo "${GITLAB_CI_BRANCH_STAGE_BEFORE_SCRIPT}" && source "${GITLAB_CI_BRANCH_STAGE_BEFORE_SCRIPT}"'
+  - 'test -r "${CI_BEFORE_SCRIPT}" && echo "Including ${CI_BEFORE_SCRIPT}" && source "${CI_BEFORE_SCRIPT}"'
+  - 'test -r "${CI_BRANCH_BEFORE_SCRIPT}" && echo "Including ${CI_BRANCH_BEFORE_SCRIPT}" && source "${CI_BRANCH_BEFORE_SCRIPT}"'
+  - 'test -r "${CI_ENVIRONMENT_BEFORE_SCRIPT}" && echo "Including ${CI_ENVIRONMENT_BEFORE_SCRIPT}" && source "${CI_ENVIRONMENT_BEFORE_SCRIPT}"'
+  - 'test -r "${CI_STAGE_BEFORE_SCRIPT}" && echo "Including ${CI_STAGE_BEFORE_SCRIPT}" && source "${CI_STAGE_BEFORE_SCRIPT}"'
+  - 'test -r "${CI_BRANCH_STAGE_BEFORE_SCRIPT}" && echo "Including ${CI_BRANCH_STAGE_BEFORE_SCRIPT}" && source "${CI_BRANCH_STAGE_BEFORE_SCRIPT}"'
+  - 'eval export OS_SOURCE_IMAGE="\${OS_SOURCE_IMAGE_${DISTRO}}"'
+  - 'export VERSION=$(${VERSION_COMMAND})'
+  - 'export PACKER_IMAGE_NAME="${IMAGE_BASENAME}-${DISTRO}-${VERSION}"'
+  - 'export DEPLOY_IMAGE_NAME="${PACKER_IMAGE_NAME}"'
+  - 'export DEPLOY_IMAGE_NAME_LATEST="${IMAGE_BASENAME}-${DISTRO}-${LATEST_VERSION_PLACEHOLDER}"'
+  - 'eval export PACKER_SOURCE_IMAGE_USERNAME="\${PACKER_SOURCE_IMAGE_USERNAME_${DISTRO}}"'
+  - 'test -r "${OS_SOURCE_IMAGE_ARTIFACT}" && export PACKER_OS_SOURCE_IMAGE="$(cat ${OS_SOURCE_IMAGE_ARTIFACT})" && echo "Set PACKER_OS_SOURCE_IMAGE=${PACKER_OS_SOURCE_IMAGE} from ${OS_SOURCE_IMAGE_ARTIFACT} artifact."'
+  - 'test -r "${OS_NETWORKS_ARTIFACT}" && export PACKER_OS_NETWORKS="$(cat ${OS_NETWORKS_ARTIFACT})" && echo "Set PACKER_OS_NETWORKS=${PACKER_OS_NETWORKS} from ${OS_NETWORKS_ARTIFACT} artifact."'
 
 stages:
   - prepare
   - validate
   - build
-  - upload
-  - cleanup
+  - deploy
 
-version:
+prepare_os_source_image_xenial:
+  variables:
+    DISTRO: "xenial"
   stage: prepare
   tags:
     - docker
   image: mercury/pao
   script:
-    - git describe --tags --dirty --always --abbrev=8 > version.txt
+    - mkdir -p $(dirname "${OS_SOURCE_IMAGE_ARTIFACT}") && (openstack image show -c id -f value "${OS_SOURCE_IMAGE}" > "${OS_SOURCE_IMAGE_ARTIFACT}")
   artifacts:
     paths:
-      - "version.txt"
+      - "${OS_SOURCE_IMAGE_ARTIFACT}"
 
-prepare_os_source_image:
+prepare_os_source_image_trusty:
+  variables:
+    DISTRO: "trusty"
   stage: prepare
   tags:
     - docker
   image: mercury/pao
   script:
-    - (openstack image show -c id -f value "${PACKER_OS_SOURCE_IMAGE}" > os_source_image.txt)
+    - mkdir -p $(dirname "${OS_SOURCE_IMAGE_ARTIFACT}") && (openstack image show -c id -f value "${OS_SOURCE_IMAGE}" > "${OS_SOURCE_IMAGE_ARTIFACT}")
   artifacts:
     paths:
-      - "os_source_image.txt"
+      - "${OS_SOURCE_IMAGE_ARTIFACT}"
 
 prepare_os_networks:
   stage: prepare
@@ -55,25 +97,14 @@ prepare_os_networks:
     - docker
   image: mercury/pao
   script:
-    - for network in "$(echo "${PACKER_OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c id -f value "${network}"; done | paste -s -d "," > os_networks.txt
+    - mkdir -p $(dirname "${OS_NETWORKS_ARTIFACT}") && for network in "$(echo "${OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c id -f value "${network}"; done | paste -s -d "," > "${OS_NETWORKS_ARTIFACT}"
   artifacts:
     paths:
-      - "os_networks.txt"
+      - "${OS_NETWORKS_ARTIFACT}"
 
-validate_openstack:
-  stage: validate
-  tags:
-    - docker
-  image: mercury/pao
-  script:
-    - for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show -c id -f value "${secgroup}"; done
-    - openstack flavor show -c id -f value "${PACKER_OS_FLAVOR}"
-    - openstack ip floating pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
-    - image_name="${IMAGE_BASENAME}-$(cat version.txt)" && image_id=$(openstack image show -c id -f value "${image_name}" || true) && test -z "${image_id}" && echo "There is no existing image called '${image_name}' (ok!)" || (echo "An image named '${image_name}' already exists, refusing to continue!" && exit 1)
-  dependencies:
-    - version
-
-validate_packer:
+validate_packer_xenial:
+  variables:
+    DISTRO: "xenial"
   stage: validate
   tags:
     - docker
@@ -85,13 +116,49 @@ validate_packer:
     - 'test -n "${OS_USERNAME}" || test -n "${OS_USERID}" || (echo "OS_USERNAME or OS_USERID must be set!"; exit 1)'
     - 'test -n "${OS_PASSWORD}" || (echo "OS_PASSWORD must be set!"; exit 1)'
     - '((echo "${OS_AUTH_URL}" | grep -q "v3") && (test -n "${OS_DOMAIN_NAME}" || test -n "${OS_DOMAIN_ID}" || echo "WARNING: OS_DOMAIN_ID or OS_DOMAIN_NAME not set")) || exit 0'
-    - 'packer validate -only=openstack -var "image_name=${IMAGE_BASENAME}-$(cat version.txt)" -var "os_source_image=$(cat os_source_image.txt)" -var "os_networks=$(cat os_networks.txt)" "${PACKER_DIR}/template.json"'
+    - image_id=$(openstack image show -c name -c id -f table  "${PACKER_IMAGE_NAME}" || true) && test -z "${image_id}" && echo "There is no existing image called '${image_name}' (ok!)" || (echo "An image named '${image_name}' already exists, refusing to continue!" && exit 1)
+    - openstack image show -c name -c id -f table "${PACKER_OS_SOURCE_IMAGE}"
+    - for network_id in "$(echo "${PACKER_OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c name -c id -f table "${network_id}"; done
+    - test -n "${PACKER_SOURCE_IMAGE_USERNAME}"
+    - for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show -c name -c id -f table "${secgroup}"; done
+    - openstack flavor show -c name -c id -f table "${PACKER_OS_FLAVOR}"
+    - openstack ip floating pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
+    - test "${PACKER_CLOUD_INIT_WAIT_TIMEOUT_S}" -gt 0
+    - 'packer validate -only=openstack "${PACKER_DIR}/template.json"'
   dependencies:
-    - version
-    - prepare_os_source_image
+    - prepare_os_source_image_xenial
+    - prepare_os_networks
+
+validate_packer_trusty:
+  variables:
+    DISTRO: "trusty"
+  stage: validate
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - 'test -d "${PACKER_DIR}" || (echo "Directory ${PACKER_DIR} must exist!"; exit 1)'
+    - 'test -n "${OS_AUTH_URL}" || (echo "OS_AUTH_URL must be set!"; exit 1)'
+    - 'test -n "${OS_TENANT_NAME}" || test -n "${OS_TENANT_ID}" || (echo "OS_TENANT_NAME or OS_TENANT_ID must be set!"; exit 1)'
+    - 'test -n "${OS_USERNAME}" || test -n "${OS_USERID}" || (echo "OS_USERNAME or OS_USERID must be set!"; exit 1)'
+    - 'test -n "${OS_PASSWORD}" || (echo "OS_PASSWORD must be set!"; exit 1)'
+    - '((echo "${OS_AUTH_URL}" | grep -q "v3") && (test -n "${OS_DOMAIN_NAME}" || test -n "${OS_DOMAIN_ID}" || echo "WARNING: OS_DOMAIN_ID or OS_DOMAIN_NAME not set for v3 keystone API")) || exit 0'
+    - image_id=$(openstack image show -c name -c id -f table  "${PACKER_IMAGE_NAME}" || true) && test -z "${image_id}" && echo "There is no existing image called '${image_name}' (ok!)" || (echo "An image named '${image_name}' already exists, refusing to continue!" && exit 1)
+    - openstack image show -c name -c id -f table "${PACKER_OS_SOURCE_IMAGE}"
+    - for network_id in "$(echo "${PACKER_OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c name -c id -f table "${network_id}"; done
+    - test -n "${PACKER_SOURCE_IMAGE_USERNAME}"
+    - for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show -c name -c id -f table "${secgroup}"; done
+    - openstack flavor show -c name -c id -f table "${PACKER_OS_FLAVOR}"
+    - openstack ip floating pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
+    - test "${PACKER_CLOUD_INIT_WAIT_TIMEOUT_S}" -gt 0
+    - 'packer validate -only=openstack "${PACKER_DIR}/template.json"'
+  dependencies:
+    - prepare_os_source_image_trusty
     - prepare_os_networks
 
 validate_ansible:
+  variables:
+    ANSIBLE_CONFIG: "${PACKER_ANSIBLE_CONFIG}"
   stage: validate
   tags:
    - docker
@@ -99,58 +166,89 @@ validate_ansible:
   script:
    - ansible-playbook --syntax-check "${PACKER_ANSIBLE_DIR}/site.yml"
 
-build_openstack:
+build_openstack_xenial:
+  variables:
+    DISTRO: "xenial"
   stage: build
   tags:
     - docker
   image: mercury/pao
   script:
-    - packer build ${PACKER_DEBUG} -only=openstack -var "image_name=${IMAGE_BASENAME}-$(cat version.txt)" -var "os_source_image=$(cat os_source_image.txt)" -var "os_networks=$(cat os_networks.txt)" "${PACKER_DIR}/template.json"
+    - packer build ${PACKER_DEBUG} -only=openstack "${PACKER_DIR}/template.json" || (echo "Packer ${DISTRO} build failed, removing image '${PACKER_IMAGE_NAME}'"; "${PACKER_DIR}/scripts/remove_failed_builds.py" --image_name="${PACKER_IMAGE_NAME}"; exit 1)
   dependencies:
-    - version
-    - prepare_os_source_image
+    - prepare_os_source_image_xenial
     - prepare_os_networks
 
-upload_hgi:
-  stage: upload
+build_openstack_trusty:
+  variables:
+    DISTRO: "trusty"
+  stage: build
   tags:
     - docker
-  image: mercury/openstack-tools
-  script:
-    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
-  when: on_success
-  dependencies:
-    - version
-
-#upload_hgiarvados:
-#  stage: upload
-#  tags:
-#    - docker
-#  image: mercury/openstack-tools
-#  script:
-#    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgiarvados "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
-#  when: on_success
-#  dependencies:
-#    - version
-
-upload_hgi-dev:
-  stage: upload
-  tags:
-    - docker
-  image: mercury/openstack-tools
-  script:
-    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi-dev "${IMAGE_BASENAME}-$(cat version.txt)" "${IMAGE_BASENAME}-$(cat version.txt)"'
-  when: on_success
-  dependencies:
-    - version
-
-cleanup_openstack_build:
-  stage: cleanup
-  tags:
-   - docker
   image: mercury/pao
   script:
-   - $PACKER_DIR/scripts/remove_failed_builds.py --image_name="${IMAGE_BASENAME}-$(cat version.txt)"
-  when: on_failure
+    - packer build ${PACKER_DEBUG} -only=openstack "${PACKER_DIR}/template.json" || (echo "Packer ${DISTRO} build failed, removing image '${PACKER_IMAGE_NAME}'"; "${PACKER_DIR}/scripts/remove_failed_builds.py" --image_name="${PACKER_IMAGE_NAME}"; exit 1)
   dependencies:
-    - version
+    - prepare_os_source_image_trusty
+    - prepare_os_networks
+
+deploy_hgi:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=rename --dest-os-tenant-name=hgi "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME}"'
+  when: on_success
+  dependencies: []
+
+deploy_hgi_latest:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME_LATEST}"'
+  when: on_success
+  dependencies: []
+
+deploy_hgiarvados:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=rename --dest-os-tenant-name=hgiarvados "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME}"'
+  when: on_success
+  dependencies: []
+
+deploy_hgiarvados_latest:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgiarvados "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME_LATEST}"'
+  when: on_success
+  dependencies: []
+
+deploy_hgi-dev:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=rename --dest-os-tenant-name=hgi-dev "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME}"'
+  when: on_success
+  dependencies: []
+
+deploy_hgi-dev-latest:
+  stage: deploy
+  tags:
+    - docker
+  image: mercury/openstack-tools
+  script:
+    - 'glancecp --duplicate-name-strategy=replace --dest-os-tenant-name=hgi-dev "${PACKER_IMAGE_NAME}" "${DEPLOY_IMAGE_NAME_LATEST}"'
+  when: on_success
+  dependencies: []
+
