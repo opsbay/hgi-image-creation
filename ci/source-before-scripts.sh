@@ -6,7 +6,6 @@ before_script_dirs=$@
 
 declare -A before_scripts
 for dir in ${before_script_dirs}; do
-    echo "Checking before script directory ${dir}..."
     if [ \! -d "${dir}" ]; then
         echo "before script directory ${dir} does not exist or is not a directory"
         continue
