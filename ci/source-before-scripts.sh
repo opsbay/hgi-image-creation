@@ -20,6 +20,6 @@ done
 
 for script in $(echo "${!before_scripts[@]}" | sort -V); do
     script_path=${before_scripts[${script}]}
-    echo "Including ${script_path}..."
+    echo "Sourcing ${script} (${script_path})..."
     source "${script_path}"
 done
