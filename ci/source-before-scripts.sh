@@ -6,7 +6,11 @@ before_script_dirs="$@"
 
 declare -A before_scripts
 for dir in "${before_script_dirs}"; do
-    test -d "${dir}" || (echo "Before script directory ${dir} does not exist"; continue)
+    echo "Checking before script directory ${dir}..."
+    if [ \! -d "${dir}" ]; then
+        echo "before script directory ${dir} does not exist or is not a directory"
+        continue
+    fi
     scripts=$(ls "${dir}/" | egrep -v '(^#)|(~$)' || echo -n "")
     for script in "${scripts}"; do
         script_path="${dir}/${script}"
