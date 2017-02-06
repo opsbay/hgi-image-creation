@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -euf -o pipefail
+
+before_script_dirs="$@"
+
+declare -A before_scripts
+for dir in "${before_script_dirs}"; do
+    test -d "${dir}" || (echo "Before script directory ${dir} does not exist"; continue)
+    scripts=$(ls "${dir}/" | egrep -v '(^#)|(~$)' || echo -n "")
+    for script in "${scripts}"; do
+        script_path="${dir}/${script}"
+        test -r "${script_path}" || (echo "Script ${script_path} exists but is not readable"; exit 1)
+        before_scripts[${script}] = "${script_path}"
+    done
+done
+
+for script in $(echo "${!before_scripts[@]}" | sort -V); do
+    script_path = ${before_scripts[${script}]}
+    echo "Including ${script_path}..."
+    source "${script_path}"
+done
