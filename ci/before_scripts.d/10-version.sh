@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #set -euf -o pipefail
-
+set +e
+set +u
 eval export OS_SOURCE_IMAGE="\${OS_SOURCE_IMAGE_${DISTRO}}"
 export VERSION=$(${VERSION_COMMAND})
 test -n "${IMAGE_BASENAME}" && test -n "${DISTRO}" && test -n "${VERSION}" && export PACKER_IMAGE_NAME="${IMAGE_BASENAME}-${DISTRO}-${VERSION}"
