@@ -12,15 +12,15 @@ for dir in ${before_script_dirs}; do
         continue
     fi
     scripts=$(ls "${dir}/" | egrep -v '(^#)|(~$)' || echo -n "")
-    for script in "${scripts}"; do
+    for script in ${scripts}; do
         script_path="${dir}/${script}"
         test -r "${script_path}" || (echo "Script ${script_path} exists but is not readable"; exit 1)
-        before_scripts[${script}] = "${script_path}"
+        before_scripts[${script}]="${script_path}"
     done
 done
 
 for script in $(echo "${!before_scripts[@]}" | sort -V); do
-    script_path = ${before_scripts[${script}]}
+    script_path=${before_scripts[${script}]}
     echo "Including ${script_path}..."
     source "${script_path}"
 done
