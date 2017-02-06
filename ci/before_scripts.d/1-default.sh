@@ -26,6 +26,7 @@ export HGI_IMAGE_CREATION_DIR="./subrepos/hgi-image-creation"
 export PACKER_DIR="${HGI_IMAGE_CREATION_DIR}/packer"
 export PACKER_ANSIBLE_DIR="./subrepos/hgi-systems/ansible"
 
-export ARTIFACTS_DIR="./artifacts"
-export OS_SOURCE_IMAGE_ARTIFACT="${ARTIFACTS_DIR}/os_source_image.txt"
-export OS_NETWORKS_ARTIFACT="${ARTIFACTS_DIR}/os_networks.txt"
+export ARTIFACTS_DIR="${GITLAB_ARTIFACTS_DIR}"
+export OS_SOURCE_IMAGE_ARTIFACT="${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
+export OS_NETWORKS_ARTIFACT="${GITLAB_OS_NETWORKS_ARTIFACT}"
+
