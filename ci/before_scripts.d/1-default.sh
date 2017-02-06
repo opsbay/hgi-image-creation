@@ -2,7 +2,7 @@
 
 # set defaults
 export PACKER_ANSIBLE_INVENTORY_GROUPS="" # ansible groups to place the build in for provisioning
-export IMAGE_BASENAME="$(echo ${CI_PROJECT_NAME} | sed 's/image-builder$//')"
+export IMAGE_BASENAME="$(echo ${CI_PROJECT_NAME} | sed 's/-image-builder$//')"
 
 export OS_SOURCE_IMAGE_xenial="Ubuntu Xenial" # name or id of openstack xenial image
 export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
