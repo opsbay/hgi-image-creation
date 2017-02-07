@@ -15,7 +15,6 @@ export LATEST_VERSION_PLACEHOLDER="latest"
 
 export PACKER_OS_FLAVOR="m1.small"
 export PACKER_OS_FLOATING_IP_POOL="nova"
-export PACKER_OS_SECURITY_GROUPS="${OS_SECURITY_GROUPS}" # comma-separated
 export PACKER_CLOUD_INIT_WAIT_TIMEOUT_S="180"
 export PACKER_LOG="0" # "0" for normal logging or "1" for extra logging
 export PACKER_DEBUG="" # "" for normal, "-debug" for debug
