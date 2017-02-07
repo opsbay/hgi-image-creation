@@ -9,7 +9,7 @@ export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
 export OS_SOURCE_IMAGE_trusty="Ubuntu Trusty" # name or id of openstack trusty image
 export PACKER_SOURCE_IMAGE_USERNAME_trusty="ubuntu"
 
-export OS_NETWORKS="hgiarvados" # comma-separated
+export OS_NETWORKS="hgi-ci" # comma-separated
 
 export VERSION_ABBREV_LEN="8"
 export VERSION_COMMAND="git describe --tags --dirty --always --abbrev=${VERSION_ABBREV_LEN}"
@@ -17,7 +17,7 @@ export LATEST_VERSION_PLACEHOLDER="latest"
 
 export PACKER_OS_FLAVOR="m1.small"
 export PACKER_OS_FLOATING_IP_POOL="nova"
-export PACKER_OS_SECURITY_GROUPS="ssh_hgiarvados" # comma-separated
+export PACKER_OS_SECURITY_GROUPS="ssh" # comma-separated
 export PACKER_CLOUD_INIT_WAIT_TIMEOUT_S="180"
 export PACKER_LOG="0" # "0" for normal logging or "1" for extra logging
 export PACKER_DEBUG="" # "" for normal, "-debug" for debug
