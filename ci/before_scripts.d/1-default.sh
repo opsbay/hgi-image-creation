@@ -9,6 +9,8 @@ export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
 export OS_SOURCE_IMAGE_trusty="Ubuntu Trusty" # name or id of openstack trusty image
 export PACKER_SOURCE_IMAGE_USERNAME_trusty="ubuntu"
 
+export PACKER_OS_SECURITY_GROUPS="${OS_SECURITY_GROUPS}"
+
 export VERSION_ABBREV_LEN="8"
 export VERSION_COMMAND="git describe --tags --dirty --always --abbrev=${VERSION_ABBREV_LEN}"
 export LATEST_VERSION_PLACEHOLDER="latest"
