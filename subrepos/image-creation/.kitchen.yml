@@ -21,7 +21,9 @@ driver:
     delete_on_termination: true
     creation_timeout: 600
 <% end %>
-
+<% if ENV['OS_NETWORK'] %>
+  network_ref: <%= ENV['OS_NETWORK'] %>
+<% end %>
 
 transport:
   ssh_key: <%= ENV['KEYPAIR'] %> 
@@ -31,6 +33,9 @@ transport:
 
 provisioner:
   name: shell
+<% if ENV['PROVISIONER_SCRIPT'] %>
+  script: <%= ENV['PROVISIONER_SCRIPT'] %>
+<% end %>
 
 platforms:
   - name: <%= ENV['PLATFORM'] %>
