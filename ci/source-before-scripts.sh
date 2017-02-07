@@ -18,7 +18,7 @@ for dir in ${before_script_dirs}; do
     done
 done
 
-for script in $(echo "${!before_scripts[@]}" | sort -V); do
+for script in $(printf '%s\n' "${before_scripts[@]}" | sort -V); do
     script_path=${before_scripts[${script}]}
     echo "Sourcing ${script} (${script_path})..."
     source "${script_path}"
