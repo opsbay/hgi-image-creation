@@ -213,7 +213,6 @@ test_openstack_no_disk_trusty:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N ) | md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 test_openstack_no_disk_xenial:
@@ -230,7 +229,6 @@ test_openstack_no_disk_xenial:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N )| md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 test_openstack_no_disk_centos7:
@@ -247,7 +245,6 @@ test_openstack_no_disk_centos7:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N ) | md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 test_openstack_disk_trusty:
@@ -264,7 +261,6 @@ test_openstack_disk_trusty:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N ) | md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 test_openstack_disk_xenial:
@@ -281,7 +277,6 @@ test_openstack_disk_xenial:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N ) | md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 test_openstack_disk_centos7:
@@ -298,7 +293,6 @@ test_openstack_disk_centos7:
   - export http_proxy=""
   - export http_proxys=""
   - export KEYPAIR=$( (echo -n $PLATFORM ; echo -n $MODE ; date +%s-%N ) | md5sum | cut -d " " -f 1)
-  - export OS_SSH_SECURITY_GROUP="${OS_SECURITY_GRP}"
   - ./kitchen_wrapper.sh
 
 cleanup_openstack_test:
