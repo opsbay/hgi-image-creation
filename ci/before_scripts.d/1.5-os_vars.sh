@@ -1,12 +1,12 @@
 if [ "${CI_BUILD_STAGE}" == "deploy" ]; then
-    export OS_AUTH_URL="${DEPLOY_OS_AUTH_URL}"
-    export OS_USERNAME="${DEPLOY_OS_USERNAME}"
-    export OS_PASSWORD="${DEPLOY_OS_PASSWORD}"
+    export OS_AUTH_URL="$(echo ${DEPLOY_OS_AUTH_URL} | sed 's/[\r\n]//g')"
+    export OS_USERNAME="$(echo ${DEPLOY_OS_USERNAME} | sed 's/[\r\n]//g')"
+    export OS_PASSWORD="$(echo ${DEPLOY_OS_PASSWORD} | sed 's/[\r\n]//g')"
 else
-    export OS_AUTH_URL="${PACKER_OS_AUTH_URL}"
-    export OS_TENANT_NAME="${PACKER_OS_TENANT_NAME}"
-    export OS_USERNAME="${PACKER_OS_USERNAME}"
-    export OS_PASSWORD="${PACKER_OS_PASSWORD}"
-    export OS_NETWORKS="${PACKER_OS_NETWORKS}"
+    export OS_AUTH_URL="$(echo ${PACKER_OS_AUTH_URL} | sed 's/[\r\n]//g')"
+    export OS_TENANT_NAME="$(echo ${PACKER_OS_TENANT_NAME} | sed 's/[\r\n]/)/g')"
+    export OS_USERNAME="$(echo ${PACKER_OS_USERNAME} | sed 's/[\r\n]//g')"
+    export OS_PASSWORD="$(echo ${PACKER_OS_PASSWORD} | sed 's/[\r\n]//g')"
+    export OS_NETWORKS="$(echo ${PACKER_OS_NETWORKS} | sed 's/[\r\n]//g')"
 fi
 
