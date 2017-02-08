@@ -1,6 +1,10 @@
 #!/bin/bash
 
 # set defaults
+export HGI_IMAGE_CREATION_DIR="./subrepos/hgi-image-creation"
+export HGI_SYSTEMS_DIR="./subrepos/hgi-systems"
+export IMAGE_CREATION_DIR="./subrepos/hgi-image-creation/subrepos/image-creation"
+
 export PACKER_ANSIBLE_INVENTORY_GROUPS="" # ansible groups to place the build in for provisioning
 export IMAGE_BASENAME="$(echo ${CI_PROJECT_NAME} | sed 's/-image-builder$//')"
 
@@ -21,11 +25,9 @@ export PACKER_CLOUD_INIT_WAIT_TIMEOUT_S="180"
 export PACKER_LOG="0" # "0" for normal logging or "1" for extra logging
 export PACKER_DEBUG="" # "" for normal, "-debug" for debug
 
-export HGI_IMAGE_CREATION_DIR="./subrepos/hgi-image-creation"
 export PACKER_DIR="${HGI_IMAGE_CREATION_DIR}/packer"
-export PACKER_ANSIBLE_DIR="./subrepos/hgi-systems/ansible"
+export PACKER_ANSIBLE_DIR="${HGI_SYSTEMS_DIR}/ansible"
 
 export ARTIFACTS_DIR="${GITLAB_ARTIFACTS_DIR}"
 export OS_SOURCE_IMAGE_ARTIFACT="${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
 export OS_NETWORKS_ARTIFACT="${GITLAB_OS_NETWORKS_ARTIFACT}"
-
