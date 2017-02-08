@@ -32,7 +32,6 @@ export ARTIFACTS_DIR="${GITLAB_ARTIFACTS_DIR}"
 export OS_SOURCE_IMAGE_ARTIFACT="${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
 export OS_NETWORKS_ARTIFACT="${GITLAB_OS_NETWORKS_ARTIFACT}"
 
-export KITCHEN_WRAPPER="${IMAGE_CREATION_DIR}/kitchen_wrapper.sh"
 export KITCHEN_YAML="${IMAGE_CREATION_DIR}/.kitchen.yml"
 export KITCHEN_PROVISIONER_SCRIPT="${IMAGE_CREATION_DIR}/bootstrap.sh"
 export KITCHEN_DEBUG="0"    # "0" for normal logging or "1" for extra logging and allowing ssh to instance for 20 mins if tests fail
