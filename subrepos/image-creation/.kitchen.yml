@@ -5,7 +5,13 @@ driver:
   openstack_api_key: <%= ENV['OS_PASSWORD'] %>
   openstack_auth_url: <%= "#{ENV['OS_AUTH_URL']}/tokens" %>
   security_groups:
-  - <%= ENV['OS_SSH_SECURITY_GROUP'] %>
+  <% if ENV['OS_SECURITY_GROUPS'] %>
+    <% ENV['OS_SECURITY_GROUPS'].split(',').each do |security_group| %>
+      - <%= security_group %>
+    <% end %>
+  <% else %>
+      - ssh
+  <% end %>
   image_ref: <%= ENV['OS_BASE_IMAGE'] %>
   flavor_ref: m1.medium
   username: <%= ENV['IMAGE_USERNAME'] %>

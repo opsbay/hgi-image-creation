@@ -4,8 +4,8 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = git@gitlab.internal.sanger.ac.uk:hgi/image-creation.git
+	remote = https://gitlab.internal.sanger.ac.uk/hgi/image-creation.git
 	branch = master
-	commit = 8356e103580d371e59b6d68cbdb100fd812cd345
-	parent = fced487a6153f29a1676785cebbba8ee31c016cb
+	commit = dc0c73996191600b8af73c81935646c1ea86abc2
+	parent = c8672f46eb98d021767d13c6b1851df1d25575cd
 	cmdver = 0.3.1
