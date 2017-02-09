@@ -1,0 +1,37 @@
+# For Gitlab CI to function, you must set the following Secret Variables in the
+# Gitlab project settings:
+#  OS_AUTH_URL (e.g. "http://openstack-gamma.internal.sanger.ac.uk:5000/v2.0/")
+#  OS_TENANT_NAME (the tenant name to use for CI instances)
+#  OS_USERNAME (OpenStack user with an account at the above auth and access to above tenant)
+#  OS_PASSWORD (password for OpenStack user)
+#  OS_NETWORKS (comma-separated list of openstack network names or uuids for packer to use with builder instances)
+#  OS_SECURITY_GROUPS (comma-separated list of openstack security group names to apply to packer builder instances)
+#  DEPLOY_OS_AUTH_URL (OS_AUTH_URL to use for deployment e.g. "http://openstack-gamma.internal.sanger.ac.uk:5000/v2.0/", only need to specify if different thatn OS_AUTH_URL)
+#  DEPLOY_OS_USERNAME (OpenStack user with an account at the above auth and access to deployment tenancies, only need to specify if different than OS_USERNAME)
+#  DEPLOY_OS_PASSWORD (password for OpenStack user for deployment, only need to specify if different than OS_PASSWORD)
+variables:
+  GITLAB_HGI_CI_DIR: "./ci"
+  GITLAB_ARTIFACTS_DIR: "artifacts"
+  GITLAB_OS_SOURCE_IMAGE_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_source_image.txt"
+  GITLAB_OS_NETWORKS_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_networks.txt"
+
+# In general, additional variables should *not* be defined above unless they are
+# required to process .gitlab-ci.yml itself (i.e. they are used in this file outside
+# of the job scripts).
+#
+# To set or override a variable, create or edit a script in the before_scripts.d directory at
+# either the repo level or in the hgi image creation subrepo. The contents of those
+# two directories will be combined and the scripts sourced in "version" order (sort -V).
+before_script:
+  - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d"'
+
+stages:
+  - test
+
+test_run_tests:
+  stage: test
+  tags:
+    - docker
+  image: mercury/ok
+  script:
+    - "${GITLAB_HGI_CI_DIR}/run-tests.sh"
