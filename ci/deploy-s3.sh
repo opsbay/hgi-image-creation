@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -eu -o pipefail
+set -euf -o pipefail
 
 # Save OpenStack image to disk
 glance image-download --file --progress "./${DEPLOY_IMAGE_NAME}.img" "${DEPLOY_IMAGE_NAME}"
 
-# Upload OpenStack imge to S3
+# Upload OpenStack image to S3
 s3cmd put \
         --access_key="${S3_ACCESS_KEY}" \
         --secret_key="${S3_SECRET_KEY}" \
