@@ -33,9 +33,9 @@ stages:
   stage: prepare
   tags:
     - docker
-  image: mercury/pao
+  image: quay.io/wtsi-hgi/pao
   script:
-    - mkdir -p $(dirname "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}") && (openstack image show -c id -f value "${OS_SOURCE_IMAGE}" > "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}")
+    - "${GITLAB_HGI_CI_DIR}/prepare-os-source-image.sh"
   artifacts:
     paths:
       - "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
@@ -45,13 +45,18 @@ prepare_os_source_image_xenial:
   variables:
     DISTRO: "xenial"
 
+prepare_os_source_image_trusty:
+  <<: *prepare_os_source_image_def
+  variables:
+    DISTRO: "trusty"
+
 prepare_os_networks:
   stage: prepare
   tags:
     - docker
-  image: mercury/pao
+  image: quay.io/wtsi-hgi/pao
   script:
-    - mkdir -p $(dirname "${GITLAB_OS_NETWORKS_ARTIFACT}") && for network in "$(echo "${OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c id -f value "${network}"; done | paste -s -d "," > "${GITLAB_OS_NETWORKS_ARTIFACT}"
+    - "${GITLAB_HGI_CI_DIR}/prepare-os-networks.sh"
   artifacts:
     paths:
       - "${GITLAB_OS_NETWORKS_ARTIFACT}"
