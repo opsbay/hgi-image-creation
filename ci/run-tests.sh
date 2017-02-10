@@ -2,8 +2,7 @@
 
 set -eu -o pipefail
 
-if [ ! -f ".gitlab-ci.yml" ]
-then
+if [ ! -f ".gitlab-ci.yml" ]; then
     >&2 echo "Must be ran in the image builder's root directory"
     exit 1
 fi
