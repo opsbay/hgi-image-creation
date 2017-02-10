@@ -26,7 +26,35 @@ before_script:
   - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d"'
 
 stages:
+  - prepare
   - test
+
+.prepare_os_source_image: &prepare_os_source_image_def
+  stage: prepare
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - mkdir -p $(dirname "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}") && (openstack image show -c id -f value "${OS_SOURCE_IMAGE}" > "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}")
+  artifacts:
+    paths:
+      - "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
+
+prepare_os_source_image_xenial:
+  <<: *prepare_os_source_image_def
+  variables:
+    DISTRO: "xenial"
+
+prepare_os_networks:
+  stage: prepare
+  tags:
+    - docker
+  image: mercury/pao
+  script:
+    - mkdir -p $(dirname "${GITLAB_OS_NETWORKS_ARTIFACT}") && for network in "$(echo "${OS_NETWORKS}" | tr "," "\n")"; do openstack network show -c id -f value "${network}"; done | paste -s -d "," > "${GITLAB_OS_NETWORKS_ARTIFACT}"
+  artifacts:
+    paths:
+      - "${GITLAB_OS_NETWORKS_ARTIFACT}"
 
 test_run_tests:
   stage: test
