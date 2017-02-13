@@ -23,7 +23,7 @@ variables:
 # either the repo level or in the hgi image creation subrepo. The contents of those
 # two directories will be combined and the scripts sourced in "version" order (sort -V).
 before_script:
-  - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d"'
+  - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d" "./test/before_scripts.d"'
 
 stages:
   - prepare
