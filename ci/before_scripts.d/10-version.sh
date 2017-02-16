@@ -3,8 +3,20 @@
 #set -euf -o pipefail
 set +e
 set +u
+
 eval export OS_SOURCE_IMAGE="\${OS_SOURCE_IMAGE_${DISTRO}}"
 export VERSION=$(${VERSION_COMMAND})
+if [[ $? -ne 0 ]]; then
+    echo "VERSION_COMMAND exited with error $?"
+    exit $?
+fi
+
+if [[ -z "${VERSION}" ]]; then
+    echo "VERSION_COMMAND \"${VERSION_COMMAND}\" returned empty version string"
+    exit 1
+fi
+
+
 if [[ -n "${IMAGE_BASENAME}" ]]; then
     if [[ -n "${DISTRO}" ]]; then
         if [[ -n "${VERSION}" ]]; then
