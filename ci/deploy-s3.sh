@@ -5,7 +5,7 @@ set -euf -o pipefail
 IMAGE_FILE_LOCATION="${DEPLOY_IMAGE_NAME}.img"
 
 # Save OpenStack image to disk
-glance image-download --file "${IMAGE_FILE_LOCATION}" --progress "${DEPLOY_IMAGE_NAME}"
+openstack image save --file "${IMAGE_FILE_LOCATION}" "${DEPLOY_IMAGE_NAME}"
 
 # Upload OpenStack image to S3
 s3cmd put \
