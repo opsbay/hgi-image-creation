@@ -11,13 +11,13 @@ if [[ -n "${IMAGE_BASENAME}" ]]; then
             export PACKER_IMAGE_NAME="${IMAGE_BASENAME}-${DISTRO}-${VERSION}"
             echo "Set PACKER_IMAGE_NAME to ${PACKER_IMAGE_NAME}"
         else
-            echo "Not setting PACKER_IMAGE_NAME because VERSION is not set"
+            echo "Not setting PACKER_IMAGE_NAME because VERSION is empty"
         fi
     else
-        echo "Not setting PACKER_IMAGE_NAME because DISTRO is not set"
+        echo "Not setting PACKER_IMAGE_NAME because DISTRO is empty"
     fi
 else
-    echo "Not setting PACKER_IMAGE_NAME because IMAGE_BASENAME is not set"
+    echo "Not setting PACKER_IMAGE_NAME because IMAGE_BASENAME is empty"
 fi
 export DEPLOY_IMAGE_NAME="${PACKER_IMAGE_NAME}"
 export DEPLOY_IMAGE_NAME_LATEST="${IMAGE_BASENAME}-${DISTRO}-${LATEST_VERSION_PLACEHOLDER}"
