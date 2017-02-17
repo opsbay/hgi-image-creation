@@ -5,8 +5,6 @@ set -euf -o pipefail
 SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "${SCRIPT_DIRECTORY}/_common.sh"
 
-echo $(getS3ImageName "test")
-
 if [ -z "${S3_ACCESS_KEY+x}" ]; then
     >&2 echo "S3_ACCESS_KEY must be set!"
     exit 1
