@@ -3,5 +3,5 @@
 set -euf -o pipefail
 
 function getS3ImageFileName {
-    return "$1.img"
+    echo "$1.img"
 }
