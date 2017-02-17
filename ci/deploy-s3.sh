@@ -2,10 +2,13 @@
 
 set -euf -o pipefail
 
-IMAGE_FILE_LOCATION="${DEPLOY_IMAGE_NAME}.img"
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "${SCRIPT_DIRECTORY}/_common.sh"
+
+imageFileName="$(getS3ImageFileName "${DEPLOY_IMAGE_NAME}")"
 
 # Save OpenStack image to disk
-openstack image save --file "${IMAGE_FILE_LOCATION}" "${PACKER_IMAGE_NAME}"
+openstack image save --file "${imageFileName}" "${PACKER_IMAGE_NAME}"
 
 # Upload OpenStack image to S3
 s3cmd put \
@@ -16,4 +19,4 @@ s3cmd put \
         --progress \
         --host="${S3_HOST}" \
         --host-bucket="${S3_HOST_BUCKET}" \
-    "${IMAGE_FILE_LOCATION}" "s3://${S3_IMAGE_BUCKET}"
+    "${imageFileName}" "s3://${S3_IMAGE_BUCKET}"
