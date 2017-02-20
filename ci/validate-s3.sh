@@ -2,9 +2,6 @@
 
 set -euf -o pipefail
 
-SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "${SCRIPT_DIRECTORY}/_common.sh"
-
 if [ -z "${S3_ACCESS_KEY+x}" ]; then
     >&2 echo "S3_ACCESS_KEY must be set!"
     exit 1
@@ -26,7 +23,6 @@ if [ -z "${S3_IMAGE_BUCKET+x}" ]; then
     exit 1
 fi
 
-imageFileName="$(getS3ImageFileName "${PACKER_IMAGE_NAME}")"
 existingImage=$(
     s3cmd ls \
         --access_key="${S3_ACCESS_KEY}" \
@@ -34,13 +30,13 @@ existingImage=$(
         --ssl \
         --host="${S3_HOST}" \
         --host-bucket="${S3_HOST_BUCKET}" \
-    "s3://${S3_IMAGE_BUCKET}/${imageFileName}"
+    "s3://${S3_IMAGE_BUCKET}/${DEPLOY_IMAGE_NAME}"
 ) || (
     >&2 echo "Could not connect to object store: exit code $?"
     exit 1
 )
 
 if [ -n "${existingImage}" ]; then
-    >&2 echo "An image named '${imageFileName}' already exists in the object store, refusing to continue!"
+    >&2 echo "An image named '${DEPLOY_IMAGE_NAME}' already exists in the object store, refusing to continue!"
     exit 1
 fi
