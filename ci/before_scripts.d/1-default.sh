@@ -8,9 +8,9 @@ export IMAGE_CREATION_DIR="./subrepos/hgi-image-creation/subrepos/image-creation
 export PACKER_ANSIBLE_INVENTORY_GROUPS="" # ansible groups to place the build in for provisioning
 export IMAGE_BASENAME="$(echo ${CI_PROJECT_NAME} | sed 's/-image-builder$//')"
 
-export OS_SOURCE_IMAGE_xenial="Ubuntu Xenial,Ubuntu 16.04 Xenial" # comma separated list of names/ids of openstack images (tries next if not found)
+export OS_SOURCE_IMAGE_xenial="Ubuntu Xenial,Ubuntu 16.04 Xenial" # comma separated list of names of openstack images (tries next if not found)
 export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
-export OS_SOURCE_IMAGE_trusty="Ubuntu Trusty,Ubuntu 14.04 Trusty" # comma separated list of names/ids of openstack images (tries next if not found)
+export OS_SOURCE_IMAGE_trusty="Ubuntu Trusty,Ubuntu 14.04 Trusty" # comma separated list of names of openstack images (tries next if not found)
 export PACKER_SOURCE_IMAGE_USERNAME_trusty="ubuntu"
 
 export PACKER_OS_SECURITY_GROUPS="${OS_SECURITY_GROUPS}"
