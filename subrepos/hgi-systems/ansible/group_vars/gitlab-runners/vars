@@ -1,0 +1,49 @@
+# Copyright (c) 2017 Genome Research Ltd.
+#
+# Authors:
+# * Joshua C. Randall <jcrandall@alum.mit.edu>
+#
+# This file is part of hgi-ansible.
+#
+# hgi-ansible is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
+#
+---
+# file: group_vars/gitlab-runners
+
+gitlab_runner_concurrent: 30
+gitlab_runner_idle_machines: 5
+gitlab_runner_idle_time: 900
+gitlab_runner_max_builds: 0
+
+gitlab_runner_os_flavor_name: "m1.small"
+gitlab_runner_os_auth_url: "{{ openstack_instance_auth.auth_url }}"
+gitlab_runner_os_project_name: "{{ openstack_instance_auth.project_name }}"
+gitlab_runner_os_username: "{{ openstack_instance_auth.username }}"
+gitlab_runner_os_password: "{{ openstack_instance_auth.password }}"
+
+gitlab_runner_os_image_name: "{{ hgi_docker_os_image_name }}"
+gitlab_runner_os_ssh_user: "{{ hgi_docker_os_image_user }}"
+
+gitlab_runner_registrations:
+  - name: "docker-privileged"
+    executor: docker
+    extratags:
+      - docker
+      - docker-privileged
+    extraargs: "--docker-privileged --docker-image docker:latest"
+  - name: "docker-machine"
+    executor: docker+machine
+    extratags:
+      - docker
+    extraargs: "--docker-image docker:latest --machine-idle-nodes {{ gitlab_runner_idle_machines }} --machine-idle-time {{ gitlab_runner_idle_time }} --machine-max-builds {{ gitlab_runner_max_builds }} --machine-machine-driver 'openstack' --machine-machine-name 'gitlab-runner-%s' --machine-machine-options 'openstack-auth-url={{ gitlab_runner_os_auth_url }}' --machine-machine-options 'openstack-project-name={{ gitlab_runner_os_project_name }}' --machine-machine-options 'openstack-username={{ gitlab_runner_os_username }}' --machine-machine-options 'openstack-password={{ gitlab_runner_os_password }}' --machine-machine-options 'openstack-flavor-name={{ gitlab_runner_os_flavor_name }}' --machine-machine-options 'openstack-image-name={{ gitlab_runner_os_image_name }}' --machine-machine-options 'openstack-ssh-user={{ gitlab_runner_os_ssh_user }}'"

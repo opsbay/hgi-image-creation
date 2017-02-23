@@ -1,0 +1,11 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/wtsi-hgi/hgi-systems.git
+	branch = master
+	commit = 37d716e503c1f2a796cf8d07ee32f74a4e792807
+	parent = a5e54cad8496ce4cc4871861bd066ce836b0dbaa
+	cmdver = 0.3.1

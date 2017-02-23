@@ -1,0 +1,80 @@
+# Copyright (c) 2017 Genome Research Ltd.
+#
+# Author: Joshua C. Randall <jcrandall@alum.mit.edu>
+#
+# This file is part of hgi-ansible.
+#
+# hgi-ansible is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
+#
+---
+# file: roles/gitlab-runner/tasks/main.yml
+
+- name: add gitlab signing key
+  tags: gitlab-runner
+  become: yes
+  apt_key:
+    url: "https://packages.gitlab.com/gpg.key"
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: add gitlab apt repos
+  tags: gitlab-runner
+  become: yes
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items: "{{ gitlab_repos }}"
+  when: ansible_os_family == 'Debian'
+
+- name: install gitlab-runner (apt)
+  tags: gitlab-runner
+  become: yes
+  apt: name={{ item }} state=present update_cache=yes cache_valid_time={{ apt_cache_valid_time }}
+  with_items:
+    - gitlab-ci-multi-runner
+  when: ansible_os_family == 'Debian'
+
+- name: create gitlab runner configuration fragment directory
+  tags: gitlab-runner
+  become: yes
+  file: path=/etc/gitlab-runner.d state=directory
+
+- name: create gitlab runner configuration header fragment
+  tags: gitlab-runner
+  become: yes
+  template: src=00config.toml.j2 dest=/etc/gitlab-runner.d/00config.toml
+
+#- name: install gitlab runner docker machine openstack image from S3
+#  tags: gitlab-runner
+
+- name: register gitlab runner
+  tags: gitlab-runner
+  become: yes
+  gitlab_ci_multi_runner_register:
+    registration_url: "{{ item[1].url }}"
+    registration_token: "{{ item[1].token }}"
+    executor: "{{ item[0].executor }}"
+    name: "{{ item[0].name }}-{{ item[1].project }}-{{ inventory_hostname_short }}"
+    tags: "{{ group_names | union(item[0].extratags | default([])) | join(',') }}"
+    extra_args: "{{ item[0].extraargs | default('') }}"
+  with_nested:
+    - "{{ gitlab_runner_registrations }}"
+    - "{{ hgi_gitlab_tokens }}"
+  when: "not 'image-building' in group_names"
+
+- name: assemble gitlab runner configuration
+  tags: gitlab-runner
+  become: yes
+  assemble: src=/etc/gitlab-runner.d dest=/etc/gitlab-runner/config.toml regexp=".*\.toml"
+  when: "not 'image-building' in group_names"
