@@ -2,8 +2,8 @@
 
 set -euf -o pipefail
 
-if [ ! -f "~/.s3cfg" ]; then
-    >&2 echo ".s3cfg must be written!"
+if [ ! -f "${HOME}/.s3cfg" ]; then
+    >&2 echo "${HOME}/.s3cfg must be written!"
     exit 1
 fi
 if [ -z "${S3_IMAGE_BUCKET+x}" ]; then
