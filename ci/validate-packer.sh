@@ -25,7 +25,8 @@ for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show
 
 openstack flavor show -c name -c id -f table "${PACKER_OS_FLAVOR}"
 
-neutron net-external-list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
+# FIXME: Disabling check until solution to https://github.com/wtsi-hgi/hgi-image-creation/issues/1 is found
+# openstack ip floating pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
 
 test "${PACKER_CLOUD_INIT_WAIT_TIMEOUT_S}" -gt 0
 
