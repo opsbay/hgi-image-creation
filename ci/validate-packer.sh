@@ -25,7 +25,8 @@ for secgroup in "${PACKER_OS_SECURITY_GROUPS}"; do openstack security group show
 
 openstack flavor show -c name -c id -f table "${PACKER_OS_FLAVOR}"
 
-openstack floating ip pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
+echo "Not checking that ${PACKER_OS_FLOATING_IP_POOL} floating ip pool exists because compute v2 is required to query floating ip pools"
+#openstack floating ip pool list -f value | grep "${PACKER_OS_FLOATING_IP_POOL}"
 
 test "${PACKER_CLOUD_INIT_WAIT_TIMEOUT_S}" -gt 0
 
