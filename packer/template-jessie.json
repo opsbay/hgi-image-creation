@@ -38,16 +38,11 @@
             "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
         },
         {
-            "type": "shell",
-            "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
-            "inline": ["echo 'i am feeling sleepy, now would be a good time to login'", "sleep 3600"]
-        },
-        {
             "type": "ansible",
             "playbook_file": "{{ user `ansible_dir` }}/site.yml",
             "groups": "image-building,{{ user `ansible_inventory_groups` }}",
             "use_sftp": true,
-            "user": "ubuntu"
+            "user": "debian"
         },
         {
             "type": "shell",
