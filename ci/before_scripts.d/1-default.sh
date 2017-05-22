@@ -10,8 +10,12 @@ export IMAGE_BASENAME="$(echo ${CI_PROJECT_NAME} | sed 's/-image-builder$//')"
 
 export OS_SOURCE_IMAGE_xenial="Ubuntu Xenial,Ubuntu 16.04 Xenial" # comma separated list of names of openstack images (tries next if not found)
 export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
+
 export OS_SOURCE_IMAGE_trusty="Ubuntu Trusty,Ubuntu 14.04 Trusty" # comma separated list of names of openstack images (tries next if not found)
 export PACKER_SOURCE_IMAGE_USERNAME_trusty="ubuntu"
+
+export OS_SOURCE_IMAGE_jessie="debian-8-20170521-openstack-amd64" # comma separated list of names of openstack images (tries next if not found)
+export PACKER_SOURCE_IMAGE_USERNAME_jessie="debian"
 
 export PACKER_OS_SECURITY_GROUPS="${OS_SECURITY_GROUPS}"
 
