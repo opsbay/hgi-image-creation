@@ -17,6 +17,11 @@ resource "openstack_compute_instance_v2" "ssh-gateway-delta-hgi" {
     access_network = true
   }
 
+  metadata = {
+    ansible_groups = "ssh_gateways"
+    user = "${var.base_image_user}"
+  }
+
   # wait for host to be available via ssh
   provisioner "remote-exec" {
     inline = [
@@ -24,15 +29,19 @@ resource "openstack_compute_instance_v2" "ssh-gateway-delta-hgi" {
     ]
     connection {
       type = "ssh"
-      user = "ubuntu"
+      user = "${var.base_image_user}"
       agent = "true"
       timeout = "2m"
     }
   }
-  # provision using ansible
-  provisioner "local-exec" {
-    command = "ANSIBLE_CONFIG=../../ansible/ansible-minimal.cfg ansible-playbook -i ../../ansible/production_hosts.d -l 'openstack_compute_instance_v2.ssh-gateway-delta-hgi' ../../ansible/site.yml"
-  }
+}
+
+resource "infoblox_record" "ssh-gateway-delta-hgi" {
+  value = "${openstack_compute_instance_v2.ssh-gateway-delta-hgi.access_ip_v4}"
+  name = "ssh"
+  domain = "delta-hgi.hgi.sanger.ac.uk"
+  type = "A"
+  ttl = 600
 }
 
 output "ssh_gateway_delta-hgi_ip" {

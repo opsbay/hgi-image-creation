@@ -55,6 +55,10 @@ mesos-slaves
 zookeepers
 marathoners
 chronosians
+openstack-instance-gitlab-runners
+
+[logrotaters:children]
+openstack-instance-gitlab-runners
 
 [bamboosians:children]
 mesos-slaves
@@ -77,33 +81,48 @@ cookie-monsters
 cookie-jars
 
 [gitlab-runners:children]
-openstack-gitlab-runners
+openstack-instance-gitlab-runners
 
-[dockerers:children]
+[consul-servers:children]
+openstack-instance-consul-servers
+
+[sanger-gitlab:children]
 gitlab-runners
 
+[openstack-tenant-cleaners:children]
+openstance-instance-openstack-tenant-cleaners
+
+[sanger-networks:children]
+consul-servers
+
+[s3-credentials:children]
+gitlab-runners
+consul-servers
+
 # OpenStack instances to be created by Ansible
-[openstack-instances]
-gitlab-runner-docker-machine-gamma-hgi-01 network="gamma-gitlab-runners-network"
-gitlab-runner-docker-machine-delta-hgi-ci-01 network="delta-gitlab-runners-network"
+[openstack-instances:children]
+openstack-instance-gitlab-runners
+openstack-instance-consul-servers
+openstance-instance-openstack-tenant-cleaners
 
-[openstack-gitlab-runners]
-gitlab-runner-docker-machine-gamma-hgi-01
-gitlab-runner-docker-machine-delta-hgi-ci-01
+[openstack:children]
+openstack-instances
 
-[openstack-gamma-hgi]
-gitlab-runner-docker-machine-gamma-hgi-01
+[infoblox-credentials:children]
+openstack-instances
 
-[openstack-delta-hgi-ci]
-gitlab-runner-docker-machine-delta-hgi-ci-01
+[openstack-instance-consul-servers]
+consul-server-delta-hgi-01 tenant=delta-hgi-tenant volume=delta-hgi-consul01-volume network=delta-hgi-consul-servers-network image=delta-hgi-docker-image keypair=delta-hgi-ansible-mercury-keypair consul_cluster=consul-cluster-delta-hgi
+consul-server-delta-hgi-02 tenant=delta-hgi-tenant volume=delta-hgi-consul02-volume network=delta-hgi-consul-servers-network image=delta-hgi-docker-image keypair=delta-hgi-ansible-mercury-keypair consul_cluster=consul-cluster-delta-hgi
+consul-server-delta-hgi-03 tenant=delta-hgi-tenant volume=delta-hgi-consul03-volume network=delta-hgi-consul-servers-network image=delta-hgi-docker-image keypair=delta-hgi-ansible-mercury-keypair consul_cluster=consul-cluster-delta-hgi
+
+[openstack-instance-gitlab-runners]
+gitlab-runner-delta-hgi-ci-01 tenant=delta-hgi-ci-tenant network="delta-gitlab-runners-network" image=delta-hgi-docker-image keypair=delta-hgi-ci-ansible-mercury-keypair
+
+[openstance-instance-openstack-tenant-cleaners]
+openstack-tenant-cleaner tenant=delta-hgi-tenant network=delta-hgi-network image=delta-hgi-docker-image keypair=delta-hgi-ansible-mercury-keypair
 
 # Groups of dynamic inventory hosts managed by Terraform
-[ssh-gateways]
-openstack_compute_instance_v2.ssh-gateway-hgi ansible_user=ubuntu
-openstack_compute_instance_v2.ssh-gateway-hgiarvados ansible_user=ubuntu
-
-[gitlab-builders]
-gitlab-builders
-
-[gitlab-credentials]
-gitlab-builders
+#[ssh-gateways]
+#openstack_compute_instance_v2.ssh-gateway-hgi ansible_user=ubuntu
+#openstack_compute_instance_v2.ssh-gateway-hgiarvados ansible_user=ubuntu

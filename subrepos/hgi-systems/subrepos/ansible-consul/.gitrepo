@@ -4,8 +4,8 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = https://github.com/savagegus/ansible-consul.git
-	branch = master
-	commit = 4fd976c0b9bb9241b3bd662ea97d89be316fd030
-	parent = e4078befaa5f73331f48e0c5d08f8afd8c7b72e0
+	remote = https://github.com/wtsi-hgi/ansible-consul
+	branch = fix/197-consul-config-idempotence
+	commit = dbfcd451b40e4ae89cf8742b79ae47b8321e6259
+	parent = 663478f3eaf900fa6e23cdca9505b17af0d66bdb
 	cmdver = 0.3.1
