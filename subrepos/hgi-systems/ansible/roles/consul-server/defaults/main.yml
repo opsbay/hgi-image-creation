@@ -1,6 +1,8 @@
 # Copyright (c) 2017 Genome Research Ltd.
 #
-# Author: Joshua C. Randall <jcrandall@alum.mit.edu>
+# Authors: 
+#   Colin Nolan <colin.nolan@sanger.ac.uk>
+#   Joshua C. Randall <jcrandall@alum.mit.edu>
 #
 # This file is part of hgi-ansible.
 #
@@ -17,7 +19,10 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 #
----
 # file: roles/consul-server/defaults/main.yml
+---
 
-consul_version: 0.7.2
+consul_s3_backup_bucket: consul-backup
+consul_s3_host: "{{ s3_credentials['sanger-ceph-mercury']['s3_host'] }}"
+consul_s3_access_key: "{{ s3_credentials['sanger-ceph-mercury']['s3_access_key'] }}"
+consul_s3_secret_key: "{{ s3_credentials['sanger-ceph-mercury']['s3_secret_key'] }}"

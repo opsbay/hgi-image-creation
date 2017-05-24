@@ -1,0 +1,1 @@
+../../subrepos/hgi-systems/ci/before_scripts.d/50-s3cmd-credentials.sh

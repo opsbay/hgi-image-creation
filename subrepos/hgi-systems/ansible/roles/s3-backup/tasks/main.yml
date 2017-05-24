@@ -1,0 +1,64 @@
+---
+
+- name: install Duplicity
+  become: yes
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+  with_items:
+    - duplicity
+    - s3cmd
+    - python
+    - python-boto
+    - cron
+
+- name: install duplicity-backup.sh
+  become: yes
+  git:
+    repo: "{{ s3_backup_duplicity_backup_sh_git_repository }}"
+    dest: "{{ s3_backup_duplicity_backup_sh_install_directory }}"
+    version: "{{ s3_backup_duplicity_backup_sh_version }}"
+
+- name: setup duplicity-backup.sh installation
+  become: yes
+  file:
+    src: "{{ s3_backup_duplicity_backup_sh_install_directory }}/{{ s3_backup_duplicity_backup_sh_script_name }}"
+    dest: "/usr/local/bin/{{ s3_backup_duplicity_backup_sh_script_name }}"
+    state: link
+
+- name: create configuration directory
+  become: yes
+  file:
+    path: "{{ s3_backup_configuration_directory }}"
+    state: directory
+
+- name: create s3cmd configuration file
+  become: yes
+  template:
+    src: s3cmd.ini.j2
+    dest: "{{ s3_backup_s3cmd_configuration_file }}"
+
+- name: create duplicity-backup.sh configuration file
+  become: yes
+  template:
+    src: duplicity-backup-sh.conf.j2
+    dest: "{{ s3_backup_duplicity_backup_sh_configuration_file }}"
+
+- name: ensure s3 backup bucket exists
+  run_once: true
+  s3_bucket:
+    name: "{{ consul_s3_backup_bucket }}"
+    ceph: true
+    s3_url: "https://{{ consul_s3_host }}"
+    access_key: "{{ consul_s3_access_key }}"
+    secret_key: "{{ consul_s3_secret_key }}"
+
+- name: schedule backup using cron
+  become: yes
+  cron:
+    name: "backup {{ s3_backup_source }} to {{ s3_backup_destination }}"
+    minute: "{{ s3_backup_minute }}"
+    hour: "{{ s3_backup_hour }}"
+    day: "{{ s3_backup_day }}"
+    job: "/usr/local/bin/{{ s3_backup_duplicity_backup_sh_script_name }} -c {{ s3_backup_duplicity_backup_sh_configuration_file }} -b"

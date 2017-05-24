@@ -20,33 +20,9 @@
 ---
 # file: roles/openstack-instance/tasks/main.yml
 
-- name: create key pair
-  delegate_to: "{{ openstack_instance_delegate }}"
-  os_keypair:
-    auth: "{{ openstack_auth }}"
-    state: present
-    name: "{{ openstack_instance_key_name }}"
-    public_key_file: "{{ openstack_instance_public_key_file }}"
-
-- name: create ssh security group 
-  delegate_to: "{{ openstack_instance_delegate }}"
-  os_security_group:
-    auth: "{{ openstack_auth }}"
-    state: present
-    name: "{{ openstack_instance_ssh_security_group_name }}"
-
-- name: add rule to ssh security group
-  delegate_to: "{{ openstack_instance_delegate }}"
-  os_security_group_rule:
-    auth: "{{ openstack_auth }}"
-    state: present
-    security_group: "{{ openstack_instance_ssh_security_group_name }}"
-    protocol: tcp
-    port_range_min: 22
-    port_range_max: 22
-    remote_ip_prefix: 0.0.0.0/0
-  
 - name: gather facts about openstack instance
+  tags:
+    - openstack-facts
   delegate_to: "{{ openstack_instance_delegate }}"
   os_server_facts:
     auth: "{{ openstack_auth }}"
@@ -66,8 +42,8 @@
     flavor: "{{ openstack_instance_flavor }}"
     key_name: "{{ openstack_instance_key_name }}"
     network: "{{ openstack_instance_network }}"
-    security_groups: 
-      - "{{ openstack_instance_ssh_security_group_name }}"
+    security_groups: "{{ openstack_instance_security_groups }}"
+    volumes: "{{ openstack_instance_volumes }}"
   tags: 
       - openstack-instance
   when: (openstack_servers | length == 0)
@@ -81,9 +57,29 @@
     detailed: yes
   when: create_instance|changed
 
-- name: set ansible_host and ansible_user
+- name: set openstack_server fact TODO this should be replaced by dynamic inventory
   set_fact:
-    ansible_host: "{{ openstack_servers[0].accessIPv4 }}"
+    openstack_server: "{{ openstack_servers[0] }}"
+
+- name: sets DNS A record for the instance in the hgi.sanger.ac.uk zone
+  delegate_to: "{{ openstack_instance_infoblox_delegate }}"
+  infoblox:
+    action: set_a_record
+    server: "{{ openstack_instance_infoblox_api_server }}"
+    dns_view: "{{ openstack_instance_infoblox_dns_view }}"
+    api_version: "{{ openstack_instance_infoblox_api_version }}"
+    username: "{{ openstack_instance_infoblox_username }}"
+    password: "{{ openstack_instance_infoblox_password }}"
+    name: "{{ inventory_hostname }}.hgi.sanger.ac.uk"
+    address: "{{ openstack_instance_server_facts.accessIPv4 }}"
+    ttl: "{{ openstack_instance_dns_ttl }}"
+
+- name: set essential ansible connection facts
+  tags:
+    - openstack-facts
+  set_fact:
+    ansible_host: "{{ inventory_hostname }}.hgi.sanger.ac.uk"
+    ansible_port: 22
     ansible_user: "{{ openstack_instance_ssh_user }}"
 
 - name: wait for instance to come up
@@ -98,26 +94,56 @@
     executable: /bin/bash
   when: create_instance|changed
 
-# - name: scan for ssh fingerprint from instance
-#   delegate_to: localhost
-#   command: ssh-keyscan -H {{ ansible_host }} 
-#   register: ssh_keyscan_results
-#   when: create_instance|changed 
+ # - name: scan for ssh fingerprint from instance
+ #   delegate_to: localhost
+ #   command: ssh-keyscan -H {{ ansible_host }} 
+ #   register: ssh_keyscan_results
+ #   when: create_instance|changed 
 
-# - name: store ssh fingerprint in known_hosts
-#   delegate_to: localhost
-#   known_hosts:
-#     name: "{{ ansible_host }}"
-#     key: "{{ ssh_keyscan_results.stdout }}"
-#     state: present
-#   when: ssh_keyscan_results|changed 
+ # - name: store ssh fingerprint in known_hosts
+ #   delegate_to: localhost
+ #   known_hosts:
+ #     name: "{{ ansible_host }}"
+ #     key: "{{ ssh_keyscan_results.stdout }}"
+ #     state: present
+ #   when: ssh_keyscan_results|changed 
 
-- name: install python
-  become: yes
-  raw: apt-get update && apt-get install -qqy python
-  args:
-    executable: /bin/bash
-  when: create_instance|changed
+#- name: disable unattended upgrades
+#  file:
+#    name: "/etc/apt/apt.conf.d/50unattended-upgrades"
+#    state: absent
+#  when: create_instance|changed
 
-# - name: gather facts for new instance
-#   setup:
+# - name: stop apt-daily (systemd)
+#   become: yes
+#   raw: systemctl stop apt-daily.service
+#   args:
+#     executable: /bin/bash
+#   when: create_instance|changed
+
+# - name: kill apt-daily (systemd)
+#   become: yes
+#   raw: systemctl kill --kill-who=all apt-daily.service
+#   args:
+#     executable: /bin/bash
+#   when: create_instance|changed
+
+# - name: wait for apt-daily to be dead (systemd)
+#   become: yes
+#   raw: timeout 120 /bin/bash -c 'while ! (systemctl list-units --all apt-daily.service | fgrep -q dead); do echo -n "."; sleep 1; done'
+#   args:
+#     executable: /bin/bash
+#   when: create_instance|changed
+
+# - name: install python
+#   become: yes
+#   raw: apt-get update && apt-get install -qqy python
+#   args:
+#     executable: /bin/bash
+#   when: create_instance|changed
+
+- name: gather facts for openstack instance
+  tags:
+    - openstack-facts
+  setup:
+  
