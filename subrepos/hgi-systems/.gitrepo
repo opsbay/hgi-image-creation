@@ -6,6 +6,6 @@
 [subrepo]
 	remote = https://github.com/wtsi-hgi/hgi-systems.git
 	branch = master
-	commit = c90f219c34783fcae0d914b28c2da4383684b450
-	parent = 0ea3ccc406c74998552d905b2920bd744279ce2d
+	commit = 0fb34ca3ed35be5d4ac96cf00ef35c0efdec5ae3
+	parent = 67a4ebc4f43433e56ebb2c7a89ac15f1684c2e13
 	cmdver = 0.3.1

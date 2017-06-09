@@ -1,0 +1,11 @@
+provider "openstack" {
+  tenant_name = "${var.env == "production" ? "hgi" : "hgi-dev"}"
+}
+
+module "openstack" {
+  source          = "../modules/openstack"
+  env             = "${var.env}"
+  region          = "${var.region}"
+  mercury_keypair = "${var.mercury_keypair}"
+  jr17_keypair    = "${var.jr17_keypair}"
+}

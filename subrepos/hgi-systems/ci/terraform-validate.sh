@@ -15,8 +15,11 @@ fi
 
 if [[ -d "terraform/${REGION}" ]]; then
     echo "Calling terraform validate in terraform/${REGION}"
-    cd terraform/${REGION} && terraform validate
+    (cd terraform/${REGION} && terraform validate)
 else
     >&2 echo "Path terraform/${REGION} not a directory"
     exit 1
 fi
+
+ci/terraform-fmt.sh "terraform/${REGION}"
+
