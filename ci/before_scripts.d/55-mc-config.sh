@@ -16,5 +16,5 @@ MC_BIN="$(which mc || true)"
 if [[ -z "${MC_BIN}" ]]; then
     >&2 echo "skipping mc config since mc is not in PATH"
 else
-    mc config host add deploy "${S3_HOST}" "${S3_ACCESS_KEY}" "${S3_SECRET_KEY}"
+    mc config host add deploy "https://${S3_HOST}" "${S3_ACCESS_KEY}" "${S3_SECRET_KEY}"
 fi

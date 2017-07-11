@@ -1,5 +1,3 @@
-set -euf -o pipefail
-
 if [[ -z "${S3_ACCESS_KEY+x}" ]]; then
     >&2 echo "S3_ACCESS_KEY must be set!"
     exit 1
