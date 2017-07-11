@@ -4,7 +4,7 @@ set -euf -o pipefail
 
 echo ""
 # Stream OpenStack image to stdout and pipe it both into md5sum and minio client for upload to S3
-upload_md5=$((openstack image save "${PACKER_IMAGE_NAME}" | tee /dev/fd/4 | mc pipe deploy/${S3_IMAGE_BUCKET}/${DEPLOY_IMAGE_NAME}) 4>&1 | md5sum - )
+upload_md5=$((openstack image save "${PACKER_IMAGE_NAME}" | tee /dev/fd/4 | mc pipe deploy/${S3_IMAGE_BUCKET}/${DEPLOY_IMAGE_NAME} 1>&2 ) 4>&1 | md5sum - )
 
 echo "Uploaded ${S3_IMAGE_BUCKET}/${DEPLOY_IMAGE_NAME} with md5: ${upload_md5}"
 
