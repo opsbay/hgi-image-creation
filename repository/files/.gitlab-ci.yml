@@ -1,0 +1,220 @@
+# For Gitlab CI to function, you must set the following Secret Variables in the
+# Gitlab project settings:
+#  OS_AUTH_URL (e.g. "http://openstack-gamma.internal.sanger.ac.uk:5000/v2.0/")
+#  OS_TENANT_NAME (the tenant name to use for CI instances)
+#  OS_USERNAME (OpenStack user with an account at the above auth and access to above tenant)
+#  OS_PASSWORD (password for OpenStack user)
+#  OS_NETWORKS (comma-separated list of openstack network names or uuids for packer to use with builder instances)
+#  OS_SECURITY_GROUPS (comma-separated list of openstack security group names to apply to packer builder instances)
+#  DEPLOY_OS_AUTH_URL (OS_AUTH_URL to use for deployment e.g. "http://openstack-gamma.internal.sanger.ac.uk:5000/v2.0/", only need to specify if different thatn OS_AUTH_URL)
+#  DEPLOY_OS_USERNAME (OpenStack user with an account at the above auth and access to deployment tenancies, only need to specify if different than OS_USERNAME)
+#  DEPLOY_OS_PASSWORD (password for OpenStack user for deployment, only need to specify if different than OS_PASSWORD)
+variables:
+  GITLAB_HGI_CI_DIR: "./subrepos/hgi-image-creation/ci"
+  GITLAB_REPO_CI_DIR: "./ci"
+  GITLAB_ARTIFACTS_DIR: "artifacts"
+  GITLAB_OS_SOURCE_IMAGE_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_source_image.txt"
+  GITLAB_OS_NETWORKS_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_networks.txt"
+
+# In general, additional variables should *not* be defined above unless they are 
+# required to process .gitlab-ci.yml itself (i.e. they are used in this file outside 
+# of the job scripts). 
+# 
+# To set or override a variable, create or edit a script in the before_scripts.d directory at 
+# either the repo level or in the hgi image creation subrepo. The contents of those 
+# two directories will be combined and the scripts sourced in "version" order (sort -V).
+before_script: 
+  - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d" "${GITLAB_REPO_CI_DIR}/before_scripts.d"'
+
+stages:
+  - prepare
+  - validate
+  - build
+  - deploy
+
+.prepare_os_source_image: &prepare_os_source_image_def
+  stage: prepare
+  tags: 
+    - docker
+  image: quay.io/wtsi-hgi/os3
+  script:
+    - "${GITLAB_HGI_CI_DIR}/prepare-os-source-image.sh"
+  artifacts:
+    paths:
+      - "${GITLAB_OS_SOURCE_IMAGE_ARTIFACT}"
+
+prepare_os_source_image_xenial:
+  <<: *prepare_os_source_image_def
+  variables:
+    DISTRO: "xenial"
+
+prepare_os_source_image_trusty:
+  <<: *prepare_os_source_image_def
+  variables:
+    DISTRO: "trusty"
+
+prepare_os_source_image_jessie:
+  <<: *prepare_os_source_image_def
+  variables:
+    DISTRO: "jessie"
+
+prepare_os_networks:
+  stage: prepare
+  tags: 
+    - docker
+  image: quay.io/wtsi-hgi/pao
+  script: 
+    - "${GITLAB_HGI_CI_DIR}/prepare-os-networks.sh"
+  artifacts:
+    paths:
+      - "${GITLAB_OS_NETWORKS_ARTIFACT}"
+
+.validate_packer: &validate_packer_def
+  stage: validate
+  tags:
+    - docker
+  image: quay.io/wtsi-hgi/pao
+  script: "${GITLAB_HGI_CI_DIR}/validate-packer.sh"
+
+validate_packer_xenial:
+  <<: *validate_packer_def
+  variables:
+    DISTRO: "xenial"
+  dependencies:
+    - prepare_os_source_image_xenial
+    - prepare_os_networks
+
+validate_packer_trusty:
+  <<: *validate_packer_def
+  variables:
+    DISTRO: "trusty"
+  dependencies:
+    - prepare_os_source_image_trusty
+    - prepare_os_networks
+
+validate_packer_jessie:
+  <<: *validate_packer_def
+  variables:
+    DISTRO: "jessie"
+  dependencies:
+    - prepare_os_source_image_jessie
+    - prepare_os_networks
+
+validate_ansible:
+  stage: validate
+  tags:
+   - docker
+  image: quay.io/wtsi-hgi/pao
+  script:
+    - "${GITLAB_HGI_CI_DIR}/validate-ansible.sh"
+
+.validate_s3: &validate_s3_def
+  stage: validate
+  tags:
+   - docker
+  image: quay.io/wtsi-hgi/os3
+  script:
+    - "${GITLAB_HGI_CI_DIR}/validate-s3.sh"
+  only:
+    - master
+
+validate_s3_xenial:
+  <<: *validate_s3_def
+  variables:
+    DISTRO: "xenial"
+
+validate_s3_trusty:
+  <<: *validate_s3_def
+  variables:
+    DISTRO: "trusty"
+
+validate_s3_jessie:
+  <<: *validate_s3_def
+  variables:
+    DISTRO: "jessie"
+
+.build_openstack: &build_openstack_def
+  stage: build
+  tags:
+    - docker
+  image: quay.io/wtsi-hgi/pao
+  script:
+    - "${GITLAB_HGI_CI_DIR}/build-openstack.sh"
+
+build_openstack_xenial:
+  <<: *build_openstack_def
+  variables:
+    DISTRO: "xenial"
+  dependencies:
+    - prepare_os_source_image_xenial
+    - prepare_os_networks
+
+build_openstack_trusty:
+  <<: *build_openstack_def
+  variables:
+    DISTRO: "trusty"
+  dependencies:
+    - prepare_os_source_image_trusty
+    - prepare_os_networks
+
+build_openstack_jessie:
+  <<: *build_openstack_def
+  variables:
+    DISTRO: "jessie"
+  dependencies:
+    - prepare_os_source_image_jessie
+    - prepare_os_networks
+
+.deploy_s3: &deploy_s3_def
+  stage: deploy
+  tags:
+    - docker
+  image: quay.io/wtsi-hgi/om
+  script:
+    - export DEPLOY_IMAGE_NAME="${DEPLOY_IMAGE_NAME}"
+    - "${GITLAB_HGI_CI_DIR}/deploy-s3.sh"
+  when: on_success
+  only:
+    - master
+
+deploy_s3_xenial:
+  <<: *deploy_s3_def
+  variables:
+    DISTRO: "xenial"
+
+deploy_s3_trusty:
+  <<: *deploy_s3_def
+  variables:
+    DISTRO: "trusty"
+
+deploy_s3_jessie:
+  <<: *deploy_s3_def
+  variables:
+    DISTRO: "jessie"
+
+.deploy_s3_latest: &deploy_s3_latest_def
+  stage: deploy
+  tags:
+    - docker
+  image: quay.io/wtsi-hgi/om
+  script:
+    - export DEPLOY_IMAGE_NAME="${DEPLOY_IMAGE_NAME_LATEST}"
+    - "${GITLAB_HGI_CI_DIR}/deploy-s3.sh"
+  when: on_success
+  only:
+    - master
+
+deploy_s3_xenial_latest:
+  <<: *deploy_s3_latest_def
+  variables:
+    DISTRO: "xenial"
+
+deploy_s3_trusty_latest:
+  <<: *deploy_s3_latest_def
+  variables:
+    DISTRO: "trusty"
+
+deploy_s3_jessie_latest:
+  <<: *deploy_s3_latest_def
+  variables:
+    DISTRO: "jessie"
