@@ -36,7 +36,7 @@ stages:
   stage: prepare
   tags: 
     - docker
-  image: quay.io/wtsi-hgi/os3
+  image: mercury/os3
   script:
     - "${GITLAB_HGI_CI_DIR}/prepare-os-source-image.sh"
   artifacts:
@@ -60,10 +60,10 @@ prepare_os_source_image_jessie:
 
 prepare_os_networks:
   stage: prepare
-  tags: 
+  tags:
     - docker
-  image: quay.io/wtsi-hgi/pao
-  script: 
+  image: mercury/pao
+  script:
     - "${GITLAB_HGI_CI_DIR}/prepare-os-networks.sh"
   artifacts:
     paths:
@@ -73,7 +73,7 @@ prepare_os_networks:
   stage: validate
   tags:
     - docker
-  image: quay.io/wtsi-hgi/pao
+  image: mercury/pao
   script: "${GITLAB_HGI_CI_DIR}/validate-packer.sh"
 
 validate_packer_xenial:
@@ -104,32 +104,57 @@ validate_ansible:
   stage: validate
   tags:
    - docker
-  image: quay.io/wtsi-hgi/pao
+  image: mercury/pao
   script:
     - "${GITLAB_HGI_CI_DIR}/validate-ansible.sh"
 
-.validate_s3: &validate_s3_def
+.validate_s3cmd: &validate_s3cmd_def
   stage: validate
   tags:
    - docker
-  image: quay.io/wtsi-hgi/os3
+  image: mercury/os3
   script:
-    - "${GITLAB_HGI_CI_DIR}/validate-s3.sh"
+    - "${GITLAB_HGI_CI_DIR}/validate-s3cmd.sh"
   only:
     - master
 
-validate_s3_xenial:
-  <<: *validate_s3_def
+validate_s3cmd_xenial:
+  <<: *validate_s3cmd_def
   variables:
     DISTRO: "xenial"
 
-validate_s3_trusty:
-  <<: *validate_s3_def
+validate_s3cmd_trusty:
+  <<: *validate_s3cmd_def
   variables:
     DISTRO: "trusty"
 
-validate_s3_jessie:
-  <<: *validate_s3_def
+validate_s3cmd_jessie:
+  <<: *validate_s3cmd_def
+  variables:
+    DISTRO: "jessie"
+
+.validate_mc: &validate_mc_def
+  stage: validate
+  tags:
+   - docker
+  image: mercury/om
+  script:
+    - "${GITLAB_HGI_CI_DIR}/validate-mc.sh"
+  only:
+    - master
+
+validate_mc_xenial:
+  <<: *validate_mc_def
+  variables:
+    DISTRO: "xenial"
+
+validate_mc_trusty:
+  <<: *validate_mc_def
+  variables:
+    DISTRO: "trusty"
+
+validate_mc_jessie:
+  <<: *validate_mc_def
   variables:
     DISTRO: "jessie"
 
@@ -137,7 +162,7 @@ validate_s3_jessie:
   stage: build
   tags:
     - docker
-  image: quay.io/wtsi-hgi/pao
+  image: mercury/pao
   script:
     - "${GITLAB_HGI_CI_DIR}/build-openstack.sh"
 
@@ -169,7 +194,7 @@ build_openstack_jessie:
   stage: deploy
   tags:
     - docker
-  image: quay.io/wtsi-hgi/om
+  image: mercury/om
   script:
     - export DEPLOY_IMAGE_NAME="${DEPLOY_IMAGE_NAME}"
     - "${GITLAB_HGI_CI_DIR}/deploy-s3.sh"
@@ -196,7 +221,7 @@ deploy_s3_jessie:
   stage: deploy
   tags:
     - docker
-  image: quay.io/wtsi-hgi/om
+  image: mercury/om
   script:
     - export DEPLOY_IMAGE_NAME="${DEPLOY_IMAGE_NAME_LATEST}"
     - "${GITLAB_HGI_CI_DIR}/deploy-s3.sh"
