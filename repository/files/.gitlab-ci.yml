@@ -16,14 +16,14 @@ variables:
   GITLAB_OS_SOURCE_IMAGE_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_source_image.txt"
   GITLAB_OS_NETWORKS_ARTIFACT: "${GITLAB_ARTIFACTS_DIR}/os_networks.txt"
 
-# In general, additional variables should *not* be defined above unless they are 
-# required to process .gitlab-ci.yml itself (i.e. they are used in this file outside 
-# of the job scripts). 
-# 
-# To set or override a variable, create or edit a script in the before_scripts.d directory at 
-# either the repo level or in the hgi image creation subrepo. The contents of those 
+# In general, additional variables should *not* be defined above unless they are
+# required to process .gitlab-ci.yml itself (i.e. they are used in this file outside
+# of the job scripts).
+#
+# To set or override a variable, create or edit a script in the before_scripts.d directory at
+# either the repo level or in the hgi image creation subrepo. The contents of those
 # two directories will be combined and the scripts sourced in "version" order (sort -V).
-before_script: 
+before_script:
   - 'source "${GITLAB_HGI_CI_DIR}/source-before-scripts.sh" "${GITLAB_HGI_CI_DIR}/before_scripts.d" "${GITLAB_REPO_CI_DIR}/before_scripts.d"'
 
 stages:
@@ -34,7 +34,7 @@ stages:
 
 .prepare_os_source_image: &prepare_os_source_image_def
   stage: prepare
-  tags: 
+  tags:
     - docker
   image: mercury/os3
   script:
