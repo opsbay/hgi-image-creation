@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 GIT_BIN="$(which git)"
 
 if [[ -z "${GIT_BIN}" ]]; then

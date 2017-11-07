@@ -23,3 +23,6 @@ for script in $(printf '%s\n' "${!before_scripts[@]}" | sort -V); do
     echo "Sourcing ${script} (${script_path})..."
     source "${script_path}"
 done
+
+set +euf +o pipefail
+
