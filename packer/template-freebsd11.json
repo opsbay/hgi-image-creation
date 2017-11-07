@@ -48,7 +48,8 @@
             "type": "shell",
             "execute_command": "sudo -S bash -c '{{ .Vars }} {{ .Path }}'",
             "scripts": [
-                "{{ template_dir }}/scripts/ansible_cleanup.sh"
+                "{{ template_dir }}/scripts/ansible_cleanup.sh",
+		"{{ template_dir }}/scripts/cloud-init_cleanup.sh"
             ]
         }
     ]
