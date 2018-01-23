@@ -22,7 +22,7 @@ export OS_SOURCE_IMAGE_artful="Ubuntu 17.10 (Artful Aardvark) Daily Build [20180
 export IMAGE_SOURCE_URL_artful="https://cloud-images.ubuntu.com/artful/20180102/artful-server-cloudimg-amd64.img"
 export PACKER_SOURCE_IMAGE_USERNAME_artful="ubuntu"
 
-export OS_SOURCE_IMAGE_bionix="Ubuntu 18.04 (Bionic Beaver) Daily Build [20180122]"
+export OS_SOURCE_IMAGE_bionic="Ubuntu 18.04 (Bionic Beaver) Daily Build [20180122]"
 export IMAGE_SOURCE_URL_bionic="https://cloud-images.ubuntu.com/bionic/20180122/bionic-server-cloudimg-amd64.img"
 export PACKER_SOURCE_IMAGE_USERNAME_bionic="ubuntu"
 
