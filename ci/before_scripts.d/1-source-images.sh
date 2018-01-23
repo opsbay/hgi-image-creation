@@ -10,7 +10,7 @@
 # In addition, a third optional variable can be set: 
 #   IMAGE_SOURCE_URL_<distro>             - a URL from which to fetch the image if none of the specified OS_SOURCE_IMAGE names are found
 #
-export DISTROS=(artful zesty xenial trusty precise stretch jessie freebsd11)
+export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11)
 
 # Note that each distro must also have a packer template file: subrepos/hgi-image-creation/packer/template-<distro>.json
 
@@ -22,9 +22,9 @@ export OS_SOURCE_IMAGE_artful="Ubuntu 17.10 (Artful Aardvark) Daily Build [20180
 export IMAGE_SOURCE_URL_artful="https://cloud-images.ubuntu.com/artful/20180102/artful-server-cloudimg-amd64.img"
 export PACKER_SOURCE_IMAGE_USERNAME_artful="ubuntu"
 
-export OS_SOURCE_IMAGE_zesty="Ubuntu 17.04 (Zesty Zapus) Daily Build [20171219]"
-export IMAGE_SOURCE_URL_zesty="https://cloud-images.ubuntu.com/zesty/20171219/zesty-server-cloudimg-amd64.img"
-export PACKER_SOURCE_IMAGE_USERNAME_zesty="ubuntu"
+export OS_SOURCE_IMAGE_bionix="Ubuntu 18.04 (Bionic Beaver) Daily Build [20180122]"
+export IMAGE_SOURCE_URL_bionic="https://cloud-images.ubuntu.com/bionic/20180122/bionic-server-cloudimg-amd64.img"
+export PACKER_SOURCE_IMAGE_USERNAME_bionic="ubuntu"
 
 export OS_SOURCE_IMAGE_xenial="Ubuntu 16.04 LTS (Xenial Xerus) Daily Build [20171221]"
 export IMAGE_SOURCE_URL_xenial="https://cloud-images.ubuntu.com/xenial/20171221/xenial-server-cloudimg-amd64-disk1.img"
