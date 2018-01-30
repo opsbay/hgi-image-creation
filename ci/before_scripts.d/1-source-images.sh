@@ -18,20 +18,20 @@ export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11)
 # Ubuntu Cloud Images 
 # https://cloud-images.ubuntu.com/
 ###############################################################################
-export OS_SOURCE_IMAGE_artful="Ubuntu 17.10 (Artful Aardvark) Daily Build [20180102]"
-export IMAGE_SOURCE_URL_artful="https://cloud-images.ubuntu.com/artful/20180102/artful-server-cloudimg-amd64.img"
+export OS_SOURCE_IMAGE_artful="Ubuntu 17.10 (Artful Aardvark) Daily Build [20180126]"
+export IMAGE_SOURCE_URL_artful="https://cloud-images.ubuntu.com/artful/20180126/artful-server-cloudimg-amd64.img"
 export PACKER_SOURCE_IMAGE_USERNAME_artful="ubuntu"
 
 export OS_SOURCE_IMAGE_bionic="Ubuntu 18.04 (Bionic Beaver) Daily Build [20180122]"
 export IMAGE_SOURCE_URL_bionic="https://cloud-images.ubuntu.com/bionic/20180122/bionic-server-cloudimg-amd64.img"
 export PACKER_SOURCE_IMAGE_USERNAME_bionic="ubuntu"
 
-export OS_SOURCE_IMAGE_xenial="Ubuntu 16.04 LTS (Xenial Xerus) Daily Build [20171221]"
-export IMAGE_SOURCE_URL_xenial="https://cloud-images.ubuntu.com/xenial/20171221/xenial-server-cloudimg-amd64-disk1.img"
+export OS_SOURCE_IMAGE_xenial="Ubuntu 16.04 LTS (Xenial Xerus) Daily Build [20180126]"
+export IMAGE_SOURCE_URL_xenial="https://cloud-images.ubuntu.com/xenial/20180126/xenial-server-cloudimg-amd64-disk1.img"
 export PACKER_SOURCE_IMAGE_USERNAME_xenial="ubuntu"
 
-export OS_SOURCE_IMAGE_trusty="Ubuntu 14.04.5 LTS (Trusty Tahr) Daily Build [20180104]"
-export IMAGE_SOURCE_URL_trusty="https://cloud-images.ubuntu.com/trusty/20180104/trusty-server-cloudimg-amd64-disk1.img"
+export OS_SOURCE_IMAGE_trusty="Ubuntu 14.04.5 LTS (Trusty Tahr) Daily Build [20180125]"
+export IMAGE_SOURCE_URL_trusty="https://cloud-images.ubuntu.com/trusty/20180125/trusty-server-cloudimg-amd64-disk1.img"
 export PACKER_SOURCE_IMAGE_USERNAME_trusty="ubuntu"
 
 export OS_SOURCE_IMAGE_precise="Ubuntu 12.04.5 LTS (Precise Pangolin) Daily Build [20170502]"
