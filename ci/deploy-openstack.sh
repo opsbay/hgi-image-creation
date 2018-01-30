@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eufxv -o pipefail
+set -euf -o pipefail
 
 SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${SCRIPT_DIRECTORY}/common.sh"
