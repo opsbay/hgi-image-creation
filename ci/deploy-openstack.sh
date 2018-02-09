@@ -15,5 +15,6 @@ export DEST_OS_AUTH_URL="${OS_AUTH_URL}"
 export DEST_OS_USERNAME="${OS_USERNAME}"
 export DEST_OS_PASSWORD="${OS_PASSWORD}"
 
+echo ${DEPLOY_IMAGE_NAME}
 glancecp --duplicate-name-strategy=replace \
     "${SOURCE_OS_PROJECT_NAME}:${PACKER_IMAGE_NAME}" "${DEST_OS_PROJECT_NAME}:${DEPLOY_IMAGE_NAME}"
