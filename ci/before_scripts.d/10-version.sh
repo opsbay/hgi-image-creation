@@ -28,7 +28,9 @@ if [[ -n "${IMAGE_BASENAME}" ]]; then
 else
     echo "Not setting PACKER_IMAGE_NAME because IMAGE_BASENAME is empty"
 fi
-export DEPLOY_IMAGE_NAME="${PACKER_IMAGE_NAME}"
+if [ -z ${DEPLOY_IMAGE_NAME+x} ]; then
+    export DEPLOY_IMAGE_NAME="${PACKER_IMAGE_NAME}"
+fi
 export DEPLOY_IMAGE_NAME_LATEST="${IMAGE_BASENAME}-${DISTRO}-${LATEST_VERSION_PLACEHOLDER}"
 
 if [[ -r "${OS_SOURCE_IMAGE_ARTIFACT}" ]]; then
