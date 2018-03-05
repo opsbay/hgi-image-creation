@@ -10,7 +10,7 @@
 # In addition, a third optional variable can be set: 
 #   IMAGE_SOURCE_URL_<distro>             - a URL from which to fetch the image if none of the specified OS_SOURCE_IMAGE names are found
 #
-export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11)
+export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11 coreos1632)
 
 # Note that each distro must also have a packer template file: subrepos/hgi-image-creation/packer/template-<distro>.json
 
@@ -58,3 +58,9 @@ export PACKER_SOURCE_IMAGE_USERNAME_jessie="debian"
 export OS_SOURCE_IMAGE_freebsd11="FreeBSD-11.1-RELEASE-amd64-cloud-init-dfe583cc"
 export PACKER_SOURCE_IMAGE_USERNAME_freebsd11="beastie"
 
+###############################################################################
+# CoreOS
+###############################################################################
+export OS_SOURCE_IMAGE_coreos1632="coreos-1632.3.0"
+export IMAGE_SOURCE_URL_coreos1632="https://stable.release.core-os.net/amd64-usr/1632.3.0/coreos_production_oracle_oci_qcow_image.img.bz2"
+export PACKER_SOURCE_IMAGE_USERNAME_coreos1632="core"

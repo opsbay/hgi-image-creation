@@ -1,0 +1,61 @@
+{
+    "min_packer_version": "0.9.0",
+    "variables": {
+        "image_name": "{{ env `PACKER_IMAGE_NAME` }}",
+        "os_source_image": "{{ env `PACKER_OS_SOURCE_IMAGE` }}",
+        "os_networks": "{{ env `PACKER_OS_NETWORKS` }}",
+        "source_image_username": "{{ env `PACKER_SOURCE_IMAGE_USERNAME` }}",
+        "os_security_groups": "{{ env `PACKER_OS_SECURITY_GROUPS` }}",
+        "os_flavor": "{{ env `PACKER_OS_FLAVOR` }}",
+        "os_floating_ip_pool": "{{ env `PACKER_OS_FLOATING_IP_POOL` }}",
+        "cloud_init_wait_timeout_s": "{{ env `PACKER_CLOUD_INIT_WAIT_TIMEOUT_S` }}",
+        "ansible_dir": "{{ env `PACKER_ANSIBLE_DIR` }}",
+        "ansible_inventory_groups": "{{ env `PACKER_ANSIBLE_INVENTORY_GROUPS` }}"
+    },
+    "builders": [
+        {
+            "image_name": "{{ user `image_name` }}",
+            "flavor": "{{ user `os_flavor` }}",
+            "floating_ip_pool": "{{ user `os_floating_ip_pool` }}",
+            "security_groups": "{{ user `os_security_groups` }}",
+            "source_image": "{{ user `os_source_image` }}",
+            "ssh_pty": false,
+            "ssh_username": "{{ user `source_image_username` }}",
+            "networks": "{{ user `os_networks` }}",
+            "type": "openstack",
+            "use_floating_ip": "true"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} {{ .Path }} {{ user `cloud_init_wait_timeout_s` }}",
+            "script": "{{ template_dir }}/scripts/cloud-init_wait.sh"
+        },
+        {
+            "type": "shell",
+            "execute_command": "chmod +x {{ .Path }}; sudo -S sh -c '{{ .Vars }} {{ .Path }} apt-daily'",
+            "script": "{{ template_dir }}/scripts/systemd_stop_service.sh"
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
+            "inline": ["apt-get update", "apt-get install -y --no-install-recommends python"]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "{{ user `ansible_dir` }}/site.yml",
+            "groups": "image-building,{{ user `ansible_inventory_groups` }}",
+            "use_sftp": true,
+            "user": "{{ user `source_image_username` }}"
+        },
+        {
+            "type": "shell",
+            "execute_command": "sudo -S sh -c '{{ .Vars }} {{ .Path }}'",
+            "scripts": [
+                "{{ template_dir }}/scripts/minimize.sh",
+                "{{ template_dir }}/scripts/ansible_cleanup.sh"
+            ]
+        }
+    ]
+}
