@@ -64,5 +64,5 @@ export PACKER_SOURCE_IMAGE_USERNAME_freebsd11="beastie"
 # CoreOS
 ###############################################################################
 export OS_SOURCE_IMAGE_coreos1632="coreos-1632.3.0"
-export IMAGE_SOURCE_URL_coreos1632="https://stable.release.core-os.net/amd64-usr/1632.3.0/coreos_production_oracle_oci_qcow_image.img.bz2"
+export IMAGE_SOURCE_URL_coreos1632="https://stable.release.core-os.net/amd64-usr/1632.3.0/coreos_production_openstack_image.img.bz2"
 
