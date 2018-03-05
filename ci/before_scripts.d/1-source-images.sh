@@ -1,16 +1,18 @@
 #
 # Upstream Openstack image settings for each supported distro
 # 
-# All supported distros should be listed in the DISTROS variable.
+# All distros to be build should be listed in the DISTROS variable.
+# Distros that should only be downloaded in the prepare stage and not built are listed in PREPARE_ONLY_DISTROS
 #
-# In addition, each supported distro should have at least two variables set here: 
+# In addition, each supported distro must have:
 #   OS_SOURCE_IMAGE_<distro>              - a comma separated list of names of openstack image names or S3 object store image names (they are tried in order until one is found)
+#
+# To be built, the distro must have
 #   PACKER_SOURCE_IMAGE_USERNAME_<distro> - the username packer should use to initially login to the image
-#
-# In addition, a third optional variable can be set: 
+# In addition, the optional image source variable can be set:
 #   IMAGE_SOURCE_URL_<distro>             - a URL from which to fetch the image if none of the specified OS_SOURCE_IMAGE names are found
-#
-export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11 coreos1632)
+export DISTROS=(artful bionic xenial trusty precise stretch jessie freebsd11)
+export PREPARE_ONLY_DISTROS=(coreos1632)
 
 # Note that each distro must also have a packer template file: subrepos/hgi-image-creation/packer/template-<distro>.json
 
@@ -63,4 +65,4 @@ export PACKER_SOURCE_IMAGE_USERNAME_freebsd11="beastie"
 ###############################################################################
 export OS_SOURCE_IMAGE_coreos1632="coreos-1632.3.0"
 export IMAGE_SOURCE_URL_coreos1632="https://stable.release.core-os.net/amd64-usr/1632.3.0/coreos_production_oracle_oci_qcow_image.img.bz2"
-export PACKER_SOURCE_IMAGE_USERNAME_coreos1632="core"
+
