@@ -1,10 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${SCRIPT_DIRECTORY}/common.sh"
 
 set -euf -o pipefail
+
+ensureSet OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME MINIO_ENDPOINT MINIO_ACCESS_KEY_ID MINIO_SECRET_ACCESS_KEY PACKER_IMAGE_NAME S3_IMAGE_BUCKET DEPLOY_IMAGE_NAME
 
 echo ""
 
 # Start glance proxy to download raw snapshot image from Glance into S3 and then make partial downloads available on localhost:8080
+echo "Starting glance-proxy"
 glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp &
 glance_proxy_pid=$(echo $!)
 local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
