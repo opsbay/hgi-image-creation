@@ -1,3 +1,13 @@
+BASH_BIN=$("which bash || true)"
+if [[ -z "${BASH_BIN}" ]]; then
+    echo "bash required but not found in path"
+    exit 1
+fi
+if [[ ! -x "${BASH_BIN}" ]]; then
+    echo "bash is on path (${BASH_BIN}) but cannot be executed"
+    exit 1
+fi
+
 GIT_BIN="$(which git || true)"
 
 if [[ -z "${GIT_BIN}" ]]; then
