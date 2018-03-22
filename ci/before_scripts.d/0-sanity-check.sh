@@ -1,4 +1,4 @@
-WHICH_BIN=$("which which || true)"
+WHICH_BIN="$(which which || true)"
 if [[ -z "${WHICH_BIN}" ]]; then
     echo "which required but not found in path"
     exit 1
@@ -8,7 +8,7 @@ if [[ ! -x "${WHICH_BIN}" ]]; then
     exit 1
 fi
 
-BASH_BIN=$("which bash || true)"
+BASH_BIN="$(which bash || true)"
 if [[ -z "${BASH_BIN}" ]]; then
     echo "bash required but not found in path"
     exit 1
