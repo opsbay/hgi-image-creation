@@ -1,4 +1,4 @@
-GIT_BIN="$(which git)"
+GIT_BIN="$(which git || true)"
 
 if [[ -z "${GIT_BIN}" ]]; then
     echo "git required but not found in path"
