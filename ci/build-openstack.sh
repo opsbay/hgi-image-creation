@@ -31,7 +31,7 @@ echo "Created temp_dir ${temp_dir} to save qcow2 image"
 
 # Start glance proxy to download raw snapshot image from Glance into S3 and then make partial downloads available on localhost:8080
 echo "Starting glance-proxy to fetch snapshot from openstack"
-glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp -log-level info &> ${temp_dir}/glance-proxy.log &
+glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp -log-level warning &> ${temp_dir}/glance-proxy.log &
 glance_proxy_pid=$(echo $!)
 local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
 
