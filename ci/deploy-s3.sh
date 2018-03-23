@@ -9,18 +9,18 @@ ensureSet OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME MINIO_ENDPOINT MINI
 
 echo ""
 
-# Start glance proxy to download raw snapshot image from Glance into S3 and then make partial downloads available on localhost:8080
-echo "Starting glance-proxy"
-glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp &
-glance_proxy_pid=$(echo $!)
-local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
-
 # Create temp dir
 temp_dir=$(mktemp -d)
 echo "Created temp_dir ${temp_dir} to save qcow2 image"
 
+# Start glance proxy to download raw snapshot image from Glance into S3 and then make partial downloads available on localhost:8080
+echo "Starting glance-proxy"
+glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp &> ${temp_dir}/glance-proxy.log
+glance_proxy_pid=$(echo $!)
+local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
+
 # Convert raw image served by glance-proxy to qcow2 saved in local temp dir
-qemu-img convert -O qcow2 --image-opts "driver=http,timeout=900,url=${local_image_url}" "${temp_dir}/${PACKER_IMAGE_NAME}.qcow2"
+qemu-img convert -O qcow2 --image-opts "driver=http,timeout=900,url=${local_image_url}" "${temp_dir}/${PACKER_IMAGE_NAME}.qcow2" || (echo "qemu-img failed, glance-proxy logs were:"; cat ${temp_dir}/glance-proxy.log; exit 1)
 
 # Stream image to stdout and pipe it both into md5sum and minio client for upload to S3
 upload_md5=$((cat "${temp_dir}/${PACKER_IMAGE_NAME}.qcow2" | tee /dev/fd/4 | mc pipe deploy/${S3_IMAGE_BUCKET}/${DEPLOY_IMAGE_NAME} 1>&2 ) 4>&1 | md5sum - )
