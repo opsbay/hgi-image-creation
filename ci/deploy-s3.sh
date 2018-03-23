@@ -20,8 +20,12 @@ glance_proxy_pid=$(echo $!)
 local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
 
 # Prefetch image in glance_proxy to ensure it is ready for qemu-img convert
-echo "Sending http HEAD to prefetch ${local_image_url}"
-curl --head "${local_image_url}"
+echo -n "Sending http HEAD to prefetch ${local_image_url} and checking it is ready..."
+ready=0
+while [[ "${ready}" -eq 0 ]]; do
+    curl -s --head "${local_image_url}" && ready=1 || (echo -n "."; sleep 1)
+done
+echo "done!"
 
 # Convert raw image served by glance-proxy to qcow2 saved in local temp dir
 echo "Calling qemu-img convert to fetch raw image from glance-proxy and convert to qcow2 locally"
