@@ -2,6 +2,9 @@
 
 set -eu -o pipefail
 
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${SCRIPT_DIRECTORY}/common.sh"
+
 ensureSet OS_AUTH_URL OS_USERNAME OS_PASSWORD OS_TENANT_NAME MINIO_ENDPOINT MINIO_ACCESS_KEY_ID MINIO_SECRET_ACCESS_KEY PACKER_IMAGE_NAME S3_IMAGE_BUCKET DEPLOY_IMAGE_NAME
 
 echo "Build openstack running packer build with: "
