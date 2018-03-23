@@ -15,11 +15,16 @@ echo "Created temp_dir ${temp_dir} to save qcow2 image"
 
 # Start glance proxy to download raw snapshot image from Glance into S3 and then make partial downloads available on localhost:8080
 echo "Starting glance-proxy"
-glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp &> ${temp_dir}/glance-proxy.log &
+glance-proxy -minio-bucket hgi-openstack-images -minio-prefix tmp -log-level info &> ${temp_dir}/glance-proxy.log &
 glance_proxy_pid=$(echo $!)
 local_image_url="http://127.0.0.1:8080/name/${PACKER_IMAGE_NAME}"
 
+# Prefetch image in glance_proxy to ensure it is ready for qemu-img convert
+echo "Sending http HEAD to prefetch ${local_image_url}"
+curl --head "${local_image_url}"
+
 # Convert raw image served by glance-proxy to qcow2 saved in local temp dir
+echo "Calling qemu-img convert to fetch raw image from glance-proxy and convert to qcow2 locally"
 qemu-img convert -O qcow2 --image-opts "driver=http,timeout=900,url=${local_image_url}" "${temp_dir}/${PACKER_IMAGE_NAME}.qcow2" || (echo "qemu-img failed, glance-proxy logs were:"; cat ${temp_dir}/glance-proxy.log; exit 1)
 
 # Stream image to stdout and pipe it both into md5sum and minio client for upload to S3
@@ -37,6 +42,9 @@ curl -X DELETE "${local_image_url}"
 
 echo "Killing glance-proxy process ${glance_proxy_pid}"
 kill ${glance_proxy_pid}
+
+echo "Glance proxy logs were:"
+cat "${temp_dir}/glance-proxy.log"
 
 echo "Removing temp_dir ${temp_dir}"
 rm -rf "${temp_dir}"
