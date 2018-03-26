@@ -41,6 +41,7 @@
             "type": "ansible",
             "playbook_file": "{{ user `ansible_dir` }}/site.yml",
             "groups": "image-building,{{ user `ansible_inventory_groups` }}",
+            "inventory_directory": "packer_hosts.d",
             "use_sftp": true,
             "user": "{{ user `source_image_username` }}"
         },
